@@ -113,7 +113,6 @@ public final class Autofill extends JavaPlugin implements Listener {
                             int kMax = Math.abs(Zc) + 1;
                             Location pos1 = fillData.position1;
                             Material setBlock = fillData.blockData;
-                            fillData.placing = true;
                             Yc = 1;
                             if (Xc != 0) Xc = Xc / Math.abs(Xc);
                             else Xc = 1;
@@ -126,6 +125,9 @@ public final class Autofill extends JavaPlugin implements Listener {
                             p.sendMessage("設置ブロック: §a" + setBlock.toString());
                             int blocks = iMax * jMax * kMax;
                             p.sendMessage("総ブロック数: §a" + blocks + "ブロック(" + String.format("%.1f", ((double) blocks / 64)) + "スタック)");
+                            UUID threadID = UUID.randomUUID();
+                            fillData.thread.put(threadID,new Process(true));
+                            Process process = fillData.thread.get(threadID);
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -135,7 +137,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                     for (int i = 0; i < iMax; i++) {
                                         for (int j = 0; j < jMax; j++) {
                                             for (int k = 0; k < kMax; k++) {
-                                                if (fillData.placing == true) {
+                                                if (process.placing == true) {
                                                     try {
                                                         Block b = world.getBlockAt((int) pos1.getX() + (j * finalXc),
                                                                 (int) pos1.getY() + (i * finalYc),
@@ -162,7 +164,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                 Thread.sleep(50);
                                                             } else {
                                                                 p.sendMessage("ブロックが足りないためautofillを終了します");
-                                                                fillData.placing = false;
+                                                                process.placing = false;
                                                             }
                                                         } else {
                                                             Thread.sleep(2);
@@ -171,16 +173,16 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                         System.out.println(e.getMessage());
                                                     }
                                                 }
-                                                if (fillData.placing == false) break;
+                                                if (process.placing == false) break;
                                             }
-                                            if (fillData.placing == false) break;
+                                            if (process.placing == false) break;
                                         }
-                                        if (fillData.placing == false) break;
+                                        if (process.placing == false) break;
                                     }
-                                    if (fillData.placing != false) {
+                                    if (process.placing != false) {
                                         p.sendMessage("autofillが完了しました");
                                     }
-                                    fillData.placing = false;
+                                    fillData.thread.remove(threadID);
                                 }
                             }).start();
                         }
@@ -195,9 +197,13 @@ public final class Autofill extends JavaPlugin implements Listener {
             if(!playerData.containsKey(p.getUniqueId())){
                 playerData.put(p.getUniqueId(),new FillData());
             }
+            boolean stop = false;
             FillData fillData = playerData.get(p.getUniqueId());
-            if(fillData.placing == true){
-                fillData.placing = false;
+            if(fillData.thread.size() > 0) stop = true;
+            fillData.thread.forEach((uuid, process) -> {
+                process.placing = false;
+            });
+            if(stop == true){
                 p.sendMessage("autofillをキャンセルしました");
             }
         }

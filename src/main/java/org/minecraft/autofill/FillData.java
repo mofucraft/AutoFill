@@ -4,11 +4,15 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class FillData {
     public Material blockData = null;
     public Location position1 = null;
     public Location position2 = null;
-    public boolean placing = false;
+    public Map<UUID,Process> thread = new HashMap<>();
     public FillData(){
 
     }
