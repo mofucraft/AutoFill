@@ -1,0 +1,14 @@
+name: autofill
+version: '${project.version}'
+main: org.minecraft.autofill.Autofill
+api-version: 1.19
+softdepend: [WorldGuard, CoreProtect]
+commands:
+  autofill:
+    description: Command description
+    permission: autofill.command
+    permission-message: Permission denied
+  cancelfill:
+    description: Command description
+    permission: autofill.cancelcommand
+    permission-message: Permission denied
