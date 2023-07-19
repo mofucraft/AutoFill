@@ -1,41 +1,32 @@
 package org.minecraft.autofill;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldedit.util.Direction;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.BukkitPlayer;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.coreprotect.CoreProtect;
+import net.coreprotect.CoreProtectAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import net.coreprotect.CoreProtect;
-import net.coreprotect.CoreProtectAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +85,7 @@ public final class Autofill extends JavaPlugin implements Listener {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player p = getServer().getPlayer(sender.getName());
         if(command.getName().equalsIgnoreCase("autofill")){
-            if(getServer().getWorld("world") != null) {
+            if(p.getWorld().getName().equalsIgnoreCase("world")) {
                 World world = getServer().getWorld("world");
                 if (playerData.containsKey(p.getUniqueId())) {
                     FillData fillData = playerData.get(p.getUniqueId());
@@ -192,6 +183,9 @@ public final class Autofill extends JavaPlugin implements Listener {
                     }
                 }
             }
+            else{
+                p.sendMessage("autofillは建築ワールドでしか使用できません");
+            }
         }
         if(command.getName().equalsIgnoreCase("cancelfill")){
             if(!playerData.containsKey(p.getUniqueId())){
@@ -243,14 +237,20 @@ public final class Autofill extends JavaPlugin implements Listener {
     private boolean canBuilt(RegionManager regionManager, Location location, Player player) {
         BlockVector3 position = BlockVector3.at(location.getX(),location.getY(),location.getZ());
         ApplicableRegionSet set = regionManager.getApplicableRegions(position);
+        ProtectedRegion current = null;
+        int priorityLevel = -2147483648;
         for (ProtectedRegion pr: set) {
-            if(pr.hasMembersOrOwners()){
-                if(!pr.isMember(player.getName()) || !pr.isOwner(player.getName())){
-                    return false;
-                }
+            if(priorityLevel <= pr.getPriority()){
+                current = pr;
             }
         }
-        return true;
+        if(current == null) return true;
+        if(current.getMembers().contains(player.getUniqueId()) || current.getOwners().contains(player.getUniqueId())){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     private void loadConfig(){
