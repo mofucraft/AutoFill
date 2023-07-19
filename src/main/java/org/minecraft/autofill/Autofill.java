@@ -35,7 +35,7 @@ import java.util.*;
 public final class Autofill extends JavaPlugin implements Listener {
 
     public Map<UUID,FillData> playerData = new Hashtable<>();
-    public List<Material> disableBlocks = new ArrayList<>();
+    public List<String> disableBlocks = new ArrayList<>();
 
     public CoreProtectAPI cApi;
 
@@ -89,7 +89,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                 World world = getServer().getWorld("world");
                 if (playerData.containsKey(p.getUniqueId())) {
                     FillData fillData = playerData.get(p.getUniqueId());
-                    if(!disableBlocks.contains(fillData.blockData)) {
+                    if(checkDisabledBlocks(fillData.blockData)) {
                         if (fillData.canBlockFill(p)) {
                             if (fillData.position1.getY() > fillData.position2.getY()) {
                                 Location temp = fillData.position1;
@@ -235,6 +235,7 @@ public final class Autofill extends JavaPlugin implements Listener {
     }
 
     private boolean canBuilt(RegionManager regionManager, Location location, Player player) {
+        if(player.hasPermission("mofucraft.staff")) return true;
         BlockVector3 position = BlockVector3.at(location.getX(),location.getY(),location.getZ());
         ApplicableRegionSet set = regionManager.getApplicableRegions(position);
         ProtectedRegion current = null;
@@ -275,12 +276,20 @@ public final class Autofill extends JavaPlugin implements Listener {
                 }
             }
             for (String str:config.getStringList("DISABLE_BLOCKS")) {
-                Material material = Material.getMaterial(str);
-                if(material != null) disableBlocks.add(material);
+                disableBlocks.add(str);
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private boolean checkDisabledBlocks(Material material){
+        for (String str: disableBlocks) {
+            if(material.toString().equalsIgnoreCase(str) || material.toString().matches(str)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
