@@ -84,121 +84,134 @@ public final class Autofill extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player p = getServer().getPlayer(sender.getName());
-        if(command.getName().equalsIgnoreCase("autofill")){
-            if(p.getWorld().getName().equalsIgnoreCase("world")) {
-                World world = getServer().getWorld("world");
-                if (playerData.containsKey(p.getUniqueId())) {
-                    FillData fillData = playerData.get(p.getUniqueId());
-                    if(checkDisabledBlocks(fillData.blockData)) {
-                        if (fillData.canBlockFill(p)) {
-                            if (fillData.position1.getY() > fillData.position2.getY()) {
-                                Location temp = fillData.position1;
-                                fillData.position1 = fillData.position2;
-                                fillData.position2 = temp;
-                            }
-                            int Yc = (int) fillData.position2.getY() - (int) fillData.position1.getY();
-                            int Xc = (int) fillData.position2.getX() - (int) fillData.position1.getX();
-                            int Zc = (int) fillData.position2.getZ() - (int) fillData.position1.getZ();
-                            int iMax = Math.abs(Yc) + 1;
-                            int jMax = Math.abs(Xc) + 1;
-                            int kMax = Math.abs(Zc) + 1;
-                            Location pos1 = fillData.position1;
-                            Material setBlock = fillData.blockData;
-                            Yc = 1;
-                            if (Xc != 0) Xc = Xc / Math.abs(Xc);
-                            else Xc = 1;
-                            if (Zc != 0) Zc = Zc / Math.abs(Zc);
-                            else Zc = 1;
-                            int finalYc = Yc;
-                            int finalXc = Xc;
-                            int finalZc = Zc;
-                            p.sendMessage("autofillを開始します。§c/cancelfill§fで中止できます");
-                            p.sendMessage("設置ブロック: §a" + setBlock.toString());
-                            int blocks = iMax * jMax * kMax;
-                            p.sendMessage("総ブロック数: §a" + blocks + "ブロック(" + String.format("%.1f", ((double) blocks / 64)) + "スタック)");
-                            UUID threadID = UUID.randomUUID();
-                            fillData.thread.put(threadID,new Process(true));
-                            Process process = fillData.thread.get(threadID);
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-                                    RegionManager regions = container.get(BukkitAdapter.adapt(world));
-                                    Sound bSound = setBlock.createBlockData().getSoundGroup().getPlaceSound();
-                                    for (int i = 0; i < iMax; i++) {
-                                        for (int j = 0; j < jMax; j++) {
-                                            for (int k = 0; k < kMax; k++) {
-                                                if (process.placing == true) {
-                                                    try {
-                                                        Block b = world.getBlockAt((int) pos1.getX() + (j * finalXc),
-                                                                (int) pos1.getY() + (i * finalYc),
-                                                                (int) pos1.getZ() + (k * finalZc));
-                                                        boolean canBuild = canBuilt(regions, b.getLocation(), p);
-                                                        if (b.isEmpty() && canBuild) {
-                                                            Inventory inv = p.getInventory();
-                                                            if (inv.contains(setBlock)) {
-                                                            //if (inv.contains(setBlock) || p.getGameMode() == GameMode.CREATIVE) {
-                                                                //if(p.getGameMode() != GameMode.CREATIVE) {
+        if(args.length == 0) {
+            if (command.getName().equalsIgnoreCase("autofill")) {
+                if (p.getWorld().getName().equalsIgnoreCase("world")) {
+                    World world = getServer().getWorld("world");
+                    if (playerData.containsKey(p.getUniqueId())) {
+                        FillData fillData = playerData.get(p.getUniqueId());
+                        if (checkDisabledBlocks(fillData.blockData)) {
+                            if (fillData.canBlockFill(p)) {
+                                if (fillData.position1.getY() > fillData.position2.getY()) {
+                                    Location temp = fillData.position1;
+                                    fillData.position1 = fillData.position2;
+                                    fillData.position2 = temp;
+                                }
+                                int Yc = (int) fillData.position2.getY() - (int) fillData.position1.getY();
+                                int Xc = (int) fillData.position2.getX() - (int) fillData.position1.getX();
+                                int Zc = (int) fillData.position2.getZ() - (int) fillData.position1.getZ();
+                                int iMax = Math.abs(Yc) + 1;
+                                int jMax = Math.abs(Xc) + 1;
+                                int kMax = Math.abs(Zc) + 1;
+                                Location pos1 = fillData.position1;
+                                Material setBlock = fillData.blockData;
+                                Yc = 1;
+                                if (Xc != 0) Xc = Xc / Math.abs(Xc);
+                                else Xc = 1;
+                                if (Zc != 0) Zc = Zc / Math.abs(Zc);
+                                else Zc = 1;
+                                int finalYc = Yc;
+                                int finalXc = Xc;
+                                int finalZc = Zc;
+                                p.sendMessage("autofillを開始します。§c/cancelfill§fで中止できます");
+                                p.sendMessage("設置ブロック: §a" + setBlock.toString());
+                                int blocks = iMax * jMax * kMax;
+                                p.sendMessage("総ブロック数: §a" + blocks + "ブロック(" + String.format("%.1f", ((double) blocks / 64)) + "スタック)");
+                                UUID threadID = UUID.randomUUID();
+                                fillData.thread.put(threadID, new Process(true));
+                                Process process = fillData.thread.get(threadID);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+                                        RegionManager regions = container.get(BukkitAdapter.adapt(world));
+                                        Sound bSound = setBlock.createBlockData().getSoundGroup().getPlaceSound();
+                                        for (int i = 0; i < iMax; i++) {
+                                            for (int j = 0; j < jMax; j++) {
+                                                for (int k = 0; k < kMax; k++) {
+                                                    if (process.placing == true) {
+                                                        try {
+                                                            Block b = world.getBlockAt((int) pos1.getX() + (j * finalXc),
+                                                                    (int) pos1.getY() + (i * finalYc),
+                                                                    (int) pos1.getZ() + (k * finalZc));
+                                                            boolean canBuild = canBuilt(regions, b.getLocation(), p);
+                                                            if (b.isEmpty() && canBuild) {
+                                                                Inventory inv = p.getInventory();
+                                                                if (inv.contains(setBlock)) {
+                                                                    //if (inv.contains(setBlock) || p.getGameMode() == GameMode.CREATIVE) {
+                                                                    //if(p.getGameMode() != GameMode.CREATIVE) {
                                                                     int slot = inv.first(setBlock);
                                                                     ItemStack item = inv.getItem(slot);
                                                                     item.setAmount(item.getAmount() - 1);
                                                                     p.getInventory().setItem(slot, item);
-                                                                //}
-                                                                Location bLoc = b.getLocation();
-                                                                if (cApi != null) {
-                                                                    cApi.logPlacement(p.getName(), b.getLocation(), setBlock, null);
+                                                                    //}
+                                                                    Location bLoc = b.getLocation();
+                                                                    if (cApi != null) {
+                                                                        cApi.logPlacement(p.getName(), b.getLocation(), setBlock, null);
+                                                                    }
+                                                                    setType(b, setBlock);
+                                                                    getServer().getOnlinePlayers().forEach(player -> {
+                                                                        player.playSound(bLoc, bSound, 1, 1);
+                                                                    });
+                                                                    Thread.sleep(50);
+                                                                } else {
+                                                                    p.sendMessage("ブロックが足りないためautofillを終了します");
+                                                                    process.placing = false;
                                                                 }
-                                                                setType(b, setBlock);
-                                                                getServer().getOnlinePlayers().forEach(player -> {
-                                                                    player.playSound(bLoc, bSound, 1, 1);
-                                                                });
-                                                                Thread.sleep(50);
                                                             } else {
-                                                                p.sendMessage("ブロックが足りないためautofillを終了します");
-                                                                process.placing = false;
+                                                                Thread.sleep(2);
                                                             }
-                                                        } else {
-                                                            Thread.sleep(2);
+                                                        } catch (InterruptedException e) {
+                                                            System.out.println(e.getMessage());
                                                         }
-                                                    } catch (InterruptedException e) {
-                                                        System.out.println(e.getMessage());
                                                     }
+                                                    if (process.placing == false) break;
                                                 }
                                                 if (process.placing == false) break;
                                             }
                                             if (process.placing == false) break;
                                         }
-                                        if (process.placing == false) break;
+                                        if (process.placing != false) {
+                                            p.sendMessage("autofillが完了しました");
+                                        }
+                                        fillData.thread.remove(threadID);
                                     }
-                                    if (process.placing != false) {
-                                        p.sendMessage("autofillが完了しました");
-                                    }
-                                    fillData.thread.remove(threadID);
-                                }
-                            }).start();
+                                }).start();
+                            }
+                        } else {
+                            p.sendMessage("このブロックはautofillで設置できません");
                         }
                     }
-                    else{
-                        p.sendMessage("このブロックはautofillで設置できません");
-                    }
+                } else {
+                    p.sendMessage("autofillは建築ワールドでしか使用できません");
                 }
             }
-            else{
-                p.sendMessage("autofillは建築ワールドでしか使用できません");
+            if (command.getName().equalsIgnoreCase("cancelfill")) {
+                if (!playerData.containsKey(p.getUniqueId())) {
+                    playerData.put(p.getUniqueId(), new FillData());
+                }
+                boolean stop = false;
+                FillData fillData = playerData.get(p.getUniqueId());
+                if (fillData.thread.size() > 0) stop = true;
+                fillData.thread.forEach((uuid, process) -> {
+                    process.placing = false;
+                });
+                if (stop == true) {
+                    p.sendMessage("autofillをキャンセルしました");
+                }
             }
         }
-        if(command.getName().equalsIgnoreCase("cancelfill")){
-            if(!playerData.containsKey(p.getUniqueId())){
-                playerData.put(p.getUniqueId(),new FillData());
-            }
-            boolean stop = false;
-            FillData fillData = playerData.get(p.getUniqueId());
-            if(fillData.thread.size() > 0) stop = true;
-            fillData.thread.forEach((uuid, process) -> {
-                process.placing = false;
-            });
-            if(stop == true){
-                p.sendMessage("autofillをキャンセルしました");
+        else{
+            if (args[0].equalsIgnoreCase("reload")) {
+                if(p.hasPermission("autofill.reload")) {
+                    loadConfig();
+                    p.sendMessage("autofillコンフィグがリロードされました");
+                    String lists = "";
+                    for (String str : disableBlocks) {
+                        lists += str + " , ";
+                    }
+                    p.sendMessage("禁止ブロックリスト: §a" + lists);
+                }
             }
         }
         return false;
@@ -275,6 +288,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                     java.lang.System.out.println(e.getMessage());
                 }
             }
+            disableBlocks.clear();
             for (String str:config.getStringList("DISABLE_BLOCKS")) {
                 disableBlocks.add(str);
             }
