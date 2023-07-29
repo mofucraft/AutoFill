@@ -1,5 +1,7 @@
 package org.minecraft.autofill;
 
+import com.gmail.nossr50.mcMMO;
+import com.gmail.nossr50.util.MetadataConstants;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Direction;
@@ -12,6 +14,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -149,6 +152,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                     if (cApi != null) {
                                                                         cApi.logPlacement(p.getName(), b.getLocation(), setBlock, null);
                                                                     }
+                                                                    setUnnaturalBlock(b);
                                                                     setType(b, setBlock);
                                                                     getServer().getOnlinePlayers().forEach(player -> {
                                                                         player.playSound(bLoc, bSound, 1, 1);
@@ -305,5 +309,13 @@ public final class Autofill extends JavaPlugin implements Listener {
             }
         }
         return true;
+    }
+
+    public static void setUnnaturalBlock(@NotNull Block block) {
+        mcMMO.getPlaceStore().setTrue(block);
+
+        // Failsafe against lingering metadata
+        if(block.hasMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS))
+            block.removeMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS, mcMMO.p);
     }
 }

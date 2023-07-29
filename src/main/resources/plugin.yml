@@ -2,7 +2,7 @@ name: autofill
 version: '${project.version}'
 main: org.minecraft.autofill.Autofill
 api-version: '1.19'
-softdepend: [WorldGuard, CoreProtect]
+softdepend: [WorldGuard, CoreProtect, mcMMO]
 commands:
   autofill:
     description: Command description
