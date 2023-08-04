@@ -17,6 +17,7 @@ import net.coreprotect.CoreProtectAPI;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -76,7 +77,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                         " Y:" + (int)e.getClickedBlock().getLocation().getY() +
                         " Z:" + (int)e.getClickedBlock().getLocation().getZ() + "§f)。範囲選択後/autofill コマンドで一括設置できます");
                 fillData.position1 = e.getClickedBlock().getLocation();
-                fillData.blockData = e.getClickedBlock().getBlockData().getMaterial();
+                fillData.blockData = e.getClickedBlock();
             }
             else if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
                 p.sendMessage("第2ポジションを設定しました(§aX:" + (int)e.getClickedBlock().getLocation().getX() +
@@ -98,7 +99,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                     World world = getServer().getWorld("world");
                     if (playerData.containsKey(p.getUniqueId())) {
                         FillData fillData = playerData.get(p.getUniqueId());
-                        if (checkDisabledBlocks(fillData.blockData)) {
+                        if (checkDisabledBlocks(fillData.blockData.getBlockData().getMaterial())) {
                             if (fillData.canBlockFill(p)) {
                                 if (fillData.position1.getY() > fillData.position2.getY()) {
                                     Location temp = fillData.position1;
@@ -112,7 +113,8 @@ public final class Autofill extends JavaPlugin implements Listener {
                                 int jMax = Math.abs(Xc) + 1;
                                 int kMax = Math.abs(Zc) + 1;
                                 Location pos1 = fillData.position1;
-                                Material setBlock = fillData.blockData;
+                                Block setBlock = fillData.blockData;
+                                Material setBlockMaterial = setBlock.getBlockData().getMaterial();
                                 Yc = 1;
                                 if (Xc != 0) Xc = Xc / Math.abs(Xc);
                                 else Xc = 1;
@@ -133,7 +135,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                     public void run() {
                                         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
                                         RegionManager regions = container.get(BukkitAdapter.adapt(world));
-                                        Sound bSound = setBlock.createBlockData().getSoundGroup().getPlaceSound();
+                                        Sound bSound = setBlockMaterial.createBlockData().getSoundGroup().getPlaceSound();
                                         for (int i = 0; i < iMax; i++) {
                                             for (int j = 0; j < jMax; j++) {
                                                 for (int k = 0; k < kMax; k++) {
@@ -145,8 +147,8 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                             boolean canBuild = canBuilt(regions, b.getLocation(), p);
                                                             if (b.isEmpty() && canBuild) {
                                                                 Inventory inv = p.getInventory();
-                                                                if (inv.contains(setBlock)) {
-                                                                    int slot = inv.first(setBlock);
+                                                                if (inv.contains(setBlockMaterial)) {
+                                                                    int slot = inv.first(setBlockMaterial);
                                                                     ItemStack item = inv.getItem(slot);
                                                                     item.setAmount(item.getAmount() - 1);
                                                                     //BlockPlaceEvent e = new BlockPlaceEvent(b, b.getState(), b, item, p, true);
@@ -154,10 +156,10 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                     p.getInventory().setItem(slot, item);
                                                                     Location bLoc = b.getLocation();
                                                                     if (cApi != null) {
-                                                                        cApi.logPlacement(p.getName(), b.getLocation(), setBlock, null);
+                                                                        cApi.logPlacement(p.getName(), b.getLocation(), setBlockMaterial, null);
                                                                     }
                                                                     setUnnaturalBlock(b);
-                                                                    setType(b, setBlock);
+                                                                    setType(b, setBlock.getBlockData());
                                                                     if(jobsBlockTimer != 0) {
                                                                         Jobs.getBpManager().add(b, jobsBlockTimer);
                                                                     }
@@ -229,10 +231,10 @@ public final class Autofill extends JavaPlugin implements Listener {
         return false;
     }
 
-    public void setType(final Block b, final Material m){
+    public void setType(final Block b, final BlockData bd){
         new BukkitRunnable() {
             public void run() {
-                b.setType(m);
+                b.setBlockData(bd);
             }
         }.runTask(this);
     }
