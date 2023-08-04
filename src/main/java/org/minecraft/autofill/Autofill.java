@@ -1,14 +1,14 @@
 package org.minecraft.autofill;
 
+import com.gamingmesh.jobs.Jobs;
+import com.gamingmesh.jobs.api.BaseEvent;
+import com.gamingmesh.jobs.api.JobsChunkChangeEvent;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.util.Direction;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
@@ -34,15 +34,19 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Autofill extends JavaPlugin implements Listener {
 
     public Map<UUID,FillData> playerData = new Hashtable<>();
     public List<String> disableBlocks = new ArrayList<>();
+    public int jobsBlockTimer = 0;
 
     public CoreProtectAPI cApi;
 
     public WorldGuard wApi;
+
+    public Jobs jobs;
 
     @Override
     public void onEnable() {
@@ -50,6 +54,7 @@ public final class Autofill extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         cApi = getCoreProtect();
         wApi = WorldGuard.getInstance();
+        jobs = Jobs.getInstance();
         loadConfig();
     }
 
@@ -141,19 +146,21 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                             if (b.isEmpty() && canBuild) {
                                                                 Inventory inv = p.getInventory();
                                                                 if (inv.contains(setBlock)) {
-                                                                    //if (inv.contains(setBlock) || p.getGameMode() == GameMode.CREATIVE) {
-                                                                    //if(p.getGameMode() != GameMode.CREATIVE) {
                                                                     int slot = inv.first(setBlock);
                                                                     ItemStack item = inv.getItem(slot);
                                                                     item.setAmount(item.getAmount() - 1);
+                                                                    //BlockPlaceEvent e = new BlockPlaceEvent(b, b.getState(), b, item, p, true);
+                                                                    //sender.getServer().getPluginManager().callEvent(e);
                                                                     p.getInventory().setItem(slot, item);
-                                                                    //}
                                                                     Location bLoc = b.getLocation();
                                                                     if (cApi != null) {
                                                                         cApi.logPlacement(p.getName(), b.getLocation(), setBlock, null);
                                                                     }
                                                                     setUnnaturalBlock(b);
                                                                     setType(b, setBlock);
+                                                                    if(jobsBlockTimer != 0) {
+                                                                        Jobs.getBpManager().add(b, jobsBlockTimer);
+                                                                    }
                                                                     getServer().getOnlinePlayers().forEach(player -> {
                                                                         player.playSound(bLoc, bSound, 1, 1);
                                                                     });
@@ -215,6 +222,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                         lists += str + " , ";
                     }
                     p.sendMessage("禁止ブロックリスト: §a" + lists);
+                    p.sendMessage("Jobs無効時間: §a" + jobsBlockTimer + "秒");
                 }
             }
         }
@@ -286,6 +294,9 @@ public final class Autofill extends JavaPlugin implements Listener {
                 List<String> defaultList = new ArrayList<>();
                 defaultList.add("BARRIER");
                 config.set("DISABLE_BLOCKS", defaultList);
+                List strList = new ArrayList<String>();
+                strList.add("autoFill禁止ブロック設定");
+                config.setInlineComments("DISABLE_BLOCKS", strList);
                 try {
                     config.save(configFile);
                 } catch (IOException e) {
@@ -295,6 +306,14 @@ public final class Autofill extends JavaPlugin implements Listener {
             disableBlocks.clear();
             for (String str:config.getStringList("DISABLE_BLOCKS")) {
                 disableBlocks.add(str);
+            }
+            jobsBlockTimer = config.getInt("JOBS_BLOCK_TIMER");
+            if(config.getInt("JOBS_BLOCK_TIMER") == 0){
+                config.set("JOBS_BLOCK_TIMER", 0);
+                List strList = new ArrayList<String>();
+                strList.add("Jobsプラグイン無効時間設定(秒)");
+                config.setInlineComments("JOBS_BLOCK_TIMER", strList);
+                config.save(configFile);
             }
         }
         catch (Exception e){
@@ -317,5 +336,14 @@ public final class Autofill extends JavaPlugin implements Listener {
         // Failsafe against lingering metadata
         if(block.hasMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS))
             block.removeMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS, mcMMO.p);
+    }
+
+    @EventHandler
+    public void checkJobs(BaseEvent e){
+        java.lang.System.out.println(String.valueOf(e.getEventName()));
+    }
+
+    @EventHandler
+    public void checkJobs2(JobsChunkChangeEvent e){
     }
 }
