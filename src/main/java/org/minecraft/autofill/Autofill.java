@@ -337,13 +337,4 @@ public final class Autofill extends JavaPlugin implements Listener {
         if(block.hasMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS))
             block.removeMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS, mcMMO.p);
     }
-
-    @EventHandler
-    public void checkJobs(BaseEvent e){
-        java.lang.System.out.println(String.valueOf(e.getEventName()));
-    }
-
-    @EventHandler
-    public void checkJobs2(JobsChunkChangeEvent e){
-    }
 }
