@@ -148,12 +148,10 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                             if (b.isEmpty() && canBuild) {
                                                                 Inventory inv = p.getInventory();
                                                                 if (inv.contains(setBlockMaterial)) {
-                                                                    if(p.getGameMode() != GameMode.CREATIVE) {
+                                                                    if(!p.hasPermission("mofucraft.staff")) {
                                                                         int slot = inv.first(setBlockMaterial);
                                                                         ItemStack item = inv.getItem(slot);
                                                                         item.setAmount(item.getAmount() - 1);
-                                                                        //BlockPlaceEvent e = new BlockPlaceEvent(b, b.getState(), b, item, p, true);
-                                                                        //sender.getServer().getPluginManager().callEvent(e);
                                                                         p.getInventory().setItem(slot, item);
                                                                     }
                                                                     Location bLoc = b.getLocation();
