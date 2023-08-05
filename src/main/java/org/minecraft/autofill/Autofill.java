@@ -124,7 +124,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                 int finalXc = Xc;
                                 int finalZc = Zc;
                                 p.sendMessage("autofillを開始します。§c/cancelfill§fで中止できます");
-                                p.sendMessage("設置ブロック: §a" + setBlock.toString());
+                                p.sendMessage("設置ブロック: §a" + setBlockMaterial.toString());
                                 int blocks = iMax * jMax * kMax;
                                 p.sendMessage("総ブロック数: §a" + blocks + "ブロック(" + String.format("%.1f", ((double) blocks / 64)) + "スタック)");
                                 UUID threadID = UUID.randomUUID();
