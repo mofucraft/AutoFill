@@ -147,7 +147,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                     (int) pos1.getY() + (i * finalYc),
                                                                     (int) pos1.getZ() + (k * finalZc));
                                                             boolean canBuild = canBuilt(regions, b.getLocation(), p);
-                                                            if ((b.isEmpty() || !checkReplaceableBlocks(b.getBlockData().getMaterial())) && canBuild ) {
+                                                            if (!checkReplaceableBlocks(b.getBlockData().getMaterial()) && canBuild ) {
                                                                 Inventory inv = p.getInventory();
                                                                 if (inv.contains(setBlockMaterial)) {
                                                                     if(!p.hasPermission("mofucraft.staff")) {
