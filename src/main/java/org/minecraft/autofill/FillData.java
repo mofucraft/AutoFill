@@ -2,6 +2,7 @@ package org.minecraft.autofill;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FillData {
-    public Block blockData = null;
+    public BlockData blockData = null;
     public Location position1 = null;
     public Location position2 = null;
     public Map<UUID,Process> thread = new HashMap<>();
@@ -17,7 +18,7 @@ public class FillData {
 
     }
     public boolean canBlockFill(Player P){
-        if(blockData != null && blockData.getBlockData().getMaterial().isBlock()){
+        if(blockData != null && blockData.getMaterial().isBlock()){
             if(position1 != null){
                 if(position2 != null){
                     return true;

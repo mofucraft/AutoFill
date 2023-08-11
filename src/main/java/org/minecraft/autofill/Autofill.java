@@ -40,7 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class Autofill extends JavaPlugin implements Listener {
 
     public Map<UUID,FillData> playerData = new Hashtable<>();
-    public List<String> disableBlocks = new ArrayList<>();
+    public ArrayList<String> disableBlocks = new ArrayList<>();
+    public ArrayList<String> replaceableBlocks = new ArrayList<>();
     public int jobsBlockTimer = 0;
 
     public CoreProtectAPI cApi;
@@ -77,7 +78,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                         " Y:" + (int)e.getClickedBlock().getLocation().getY() +
                         " Z:" + (int)e.getClickedBlock().getLocation().getZ() + "§f)。範囲選択後/autofill コマンドで一括設置できます");
                 fillData.position1 = e.getClickedBlock().getLocation();
-                fillData.blockData = e.getClickedBlock();
+                fillData.blockData = e.getClickedBlock().getBlockData().clone();
             }
             else if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
                 p.sendMessage("第2ポジションを設定しました(§aX:" + (int)e.getClickedBlock().getLocation().getX() +
@@ -99,7 +100,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                     World world = getServer().getWorld("world");
                     if (playerData.containsKey(p.getUniqueId())) {
                         FillData fillData = playerData.get(p.getUniqueId());
-                        if (checkDisabledBlocks(fillData.blockData.getBlockData().getMaterial())) {
+                        if (checkDisabledBlocks(fillData.blockData.getMaterial())) {
                             if (fillData.canBlockFill(p)) {
                                 if (fillData.position1.getY() > fillData.position2.getY()) {
                                     Location temp = fillData.position1;
@@ -113,8 +114,8 @@ public final class Autofill extends JavaPlugin implements Listener {
                                 int jMax = Math.abs(Xc) + 1;
                                 int kMax = Math.abs(Zc) + 1;
                                 Location pos1 = fillData.position1;
-                                Block setBlock = fillData.blockData;
-                                Material setBlockMaterial = setBlock.getBlockData().getMaterial();
+                                BlockData setBlock = fillData.blockData;
+                                Material setBlockMaterial = setBlock.getMaterial();
                                 Yc = 1;
                                 if (Xc != 0) Xc = Xc / Math.abs(Xc);
                                 else Xc = 1;
@@ -145,7 +146,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                     (int) pos1.getY() + (i * finalYc),
                                                                     (int) pos1.getZ() + (k * finalZc));
                                                             boolean canBuild = canBuilt(regions, b.getLocation(), p);
-                                                            if (b.isEmpty() && canBuild) {
+                                                            if (!checkReplaceableBlocks(b.getBlockData().getMaterial()) && canBuild ) {
                                                                 Inventory inv = p.getInventory();
                                                                 if (inv.contains(setBlockMaterial)) {
                                                                     if(!p.hasPermission("mofucraft.staff")) {
@@ -159,7 +160,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                         cApi.logPlacement(p.getName(), b.getLocation(), setBlockMaterial, null);
                                                                     }
                                                                     setUnnaturalBlock(b);
-                                                                    setType(b, setBlock.getBlockData());
+                                                                    setType(b, setBlock);
                                                                     if(jobsBlockTimer != 0) {
                                                                         Jobs.getBpManager().add(b, jobsBlockTimer);
                                                                     }
@@ -219,11 +220,16 @@ public final class Autofill extends JavaPlugin implements Listener {
                 if(p.hasPermission("autofill.reload")) {
                     loadConfig();
                     p.sendMessage("autofillコンフィグがリロードされました");
-                    String lists = "";
+                    String disableLists = "";
+                    String replaceableLists = "";
                     for (String str : disableBlocks) {
-                        lists += str + " , ";
+                        disableLists += str + " , ";
                     }
-                    p.sendMessage("禁止ブロックリスト: §a" + lists);
+                    for (String str : replaceableBlocks) {
+                        replaceableLists += str + " , ";
+                    }
+                    p.sendMessage("禁止ブロックリスト: §a" + disableLists);
+                    p.sendMessage("上書き可能ブロックリスト: §a" + replaceableLists);
                     p.sendMessage("Jobs無効時間: §a" + jobsBlockTimer + "秒");
                 }
             }
@@ -235,6 +241,7 @@ public final class Autofill extends JavaPlugin implements Listener {
         new BukkitRunnable() {
             public void run() {
                 b.setBlockData(bd);
+                b.getState().update(true, true);
             }
         }.runTask(this);
     }
@@ -309,6 +316,25 @@ public final class Autofill extends JavaPlugin implements Listener {
             for (String str:config.getStringList("DISABLE_BLOCKS")) {
                 disableBlocks.add(str);
             }
+            if(config.getStringList("REPLACEABLE_BLOCKS").isEmpty()){
+                config.createSection("REPLACEABLE_BLOCKS");
+                List<String> defaultList = new ArrayList<>();
+                defaultList.add("AIR");
+                config.set("REPLACEABLE_BLOCKS", defaultList);
+                List strList = new ArrayList<String>();
+                strList.add("置換可能ブロック設定(リスト) ※置き換えられたブロックは消失します");
+                config.setInlineComments("REPLACEABLE_BLOCKS", strList);
+                try {
+                    config.save(configFile);
+                } catch (IOException e) {
+                    java.lang.System.out.println(e.getMessage());
+                }
+            }
+            replaceableBlocks.clear();
+            for (String str:config.getStringList("REPLACEABLE_BLOCKS")) {
+                replaceableBlocks.add(str);
+            }
+            java.lang.System.out.println(config.getStringList("REPLACEABLE_BLOCKS").isEmpty());
             jobsBlockTimer = config.getInt("JOBS_BLOCK_TIMER");
             if(config.getInt("JOBS_BLOCK_TIMER") == 0){
                 config.set("JOBS_BLOCK_TIMER", 0);
@@ -325,6 +351,14 @@ public final class Autofill extends JavaPlugin implements Listener {
 
     private boolean checkDisabledBlocks(Material material){
         for (String str: disableBlocks) {
+            if(material.toString().equalsIgnoreCase(str) || material.toString().matches(str)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private boolean checkReplaceableBlocks(Material material){
+        for (String str: replaceableBlocks) {
             if(material.toString().equalsIgnoreCase(str) || material.toString().matches(str)) {
                 return false;
             }
