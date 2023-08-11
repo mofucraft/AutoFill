@@ -140,13 +140,14 @@ public final class Autofill extends JavaPlugin implements Listener {
                                         for (int i = 0; i < iMax; i++) {
                                             for (int j = 0; j < jMax; j++) {
                                                 for (int k = 0; k < kMax; k++) {
+                                                    if(p.isOnline() == false) process.placing = false;
                                                     if (process.placing == true) {
                                                         try {
                                                             Block b = world.getBlockAt((int) pos1.getX() + (j * finalXc),
                                                                     (int) pos1.getY() + (i * finalYc),
                                                                     (int) pos1.getZ() + (k * finalZc));
                                                             boolean canBuild = canBuilt(regions, b.getLocation(), p);
-                                                            if (!checkReplaceableBlocks(b.getBlockData().getMaterial()) && canBuild ) {
+                                                            if ((b.isEmpty() || !checkReplaceableBlocks(b.getBlockData().getMaterial())) && canBuild ) {
                                                                 Inventory inv = p.getInventory();
                                                                 if (inv.contains(setBlockMaterial)) {
                                                                     if(!p.hasPermission("mofucraft.staff")) {
@@ -220,17 +221,38 @@ public final class Autofill extends JavaPlugin implements Listener {
                 if(p.hasPermission("autofill.reload")) {
                     loadConfig();
                     p.sendMessage("autofillコンフィグがリロードされました");
+                    p.sendMessage("マテリアルが一つも一致しないものは赤く表示されます");
                     String disableLists = "";
                     String replaceableLists = "";
                     for (String str : disableBlocks) {
-                        disableLists += str + " , ";
+                        Material m = null;
+                        try{
+                            m = Material.matchMaterial(str);
+                        }
+                        catch (Exception e){}
+                        if(m != null){
+                            disableLists += "§a" + str + " , ";
+                        }
+                        else{
+                            disableLists += "§c" + str + " , ";
+                        }
                     }
                     for (String str : replaceableBlocks) {
-                        replaceableLists += str + " , ";
+                        Material m = null;
+                        try{
+                            m = Material.matchMaterial(str);
+                        }
+                        catch (Exception e){}
+                        if(m != null){
+                            replaceableLists += "§a" + str + " , ";
+                        }
+                        else{
+                            replaceableLists += "§c" + str + " , ";
+                        }
                     }
-                    p.sendMessage("禁止ブロックリスト: §a" + disableLists);
-                    p.sendMessage("上書き可能ブロックリスト: §a" + replaceableLists);
-                    p.sendMessage("Jobs無効時間: §a" + jobsBlockTimer + "秒");
+                    p.sendMessage("禁止ブロックリスト: " + disableLists);
+                    p.sendMessage("上書き可能ブロックリスト: " + replaceableLists);
+                    p.sendMessage("Jobs無効時間: " + jobsBlockTimer + "秒");
                 }
             }
         }
@@ -334,7 +356,6 @@ public final class Autofill extends JavaPlugin implements Listener {
             for (String str:config.getStringList("REPLACEABLE_BLOCKS")) {
                 replaceableBlocks.add(str);
             }
-            java.lang.System.out.println(config.getStringList("REPLACEABLE_BLOCKS").isEmpty());
             jobsBlockTimer = config.getInt("JOBS_BLOCK_TIMER");
             if(config.getInt("JOBS_BLOCK_TIMER") == 0){
                 config.set("JOBS_BLOCK_TIMER", 0);
