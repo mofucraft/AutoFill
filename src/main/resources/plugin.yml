@@ -1,0 +1,14 @@
+name: autofill
+version: '${project.version}'
+main: org.minecraft.autofill1201.Autofill
+api-version: 1.20
+softdepend: [WorldGuard, CoreProtect, mcMMO, Vault]
+commands:
+  autofill:
+    description: Command description
+    permission: autofill.command
+    permission-message: Permission denied
+  cancelfill:
+    description: Command description
+    permission: autofill.cancelcommand
+    permission-message: Permission denied
