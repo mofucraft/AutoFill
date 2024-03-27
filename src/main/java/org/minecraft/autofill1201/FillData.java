@@ -16,6 +16,7 @@ public class FillData {
     public Location position1 = null;
     public Location position2 = null;
     public Location copyPosition = null;
+    public int rotation = 0;
     public Map<UUID,Process> thread = new HashMap<>();
     public FillMode Mode = FillMode.Fill;
     public SelectMode selectMode = SelectMode.Normal;

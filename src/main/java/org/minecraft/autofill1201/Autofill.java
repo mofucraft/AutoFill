@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -46,9 +47,7 @@ public final class Autofill extends JavaPlugin implements Listener {
     public Material wand = Material.NETHER_STAR;
 
     public CoreProtectAPI cApi;
-
     public WorldGuard wApi;
-
     public Jobs jobs;
     public Economy economy;
 
@@ -56,6 +55,7 @@ public final class Autofill extends JavaPlugin implements Listener {
     public void onEnable() {
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(this, this);
+        this.getCommand("autofill").setTabCompleter(new TabCompleter());
         cApi = getCoreProtect();
         wApi = WorldGuard.getInstance();
         jobs = Jobs.getInstance();
@@ -101,71 +101,10 @@ public final class Autofill extends JavaPlugin implements Listener {
                             ",Z:" + (int) e.getClickedBlock().getLocation().getZ() + "§f)");
                     p.sendMessage("始点は範囲選択されている領域の座標が小さい方からコピーされます");
                     p.sendMessage("既に範囲選択がされている場合は範囲が表示されます");
+                    p.sendMessage("/autofillコマンドを使用するとコピーが開始されます");
                     fillData.copyPosition = e.getClickedBlock().getLocation();
                     fillData.selectMode = SelectMode.Normal;
-                    if(fillData.position1 != null && fillData.position2 != null) {
-                        Location pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
-                        Location pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
-                        int Ycm = (int) pos2.getY() - (int) pos1.getY() + 1;
-                        int Xcm = (int) pos2.getX() - (int) pos1.getX() + 1;
-                        int Zcm = (int) pos2.getZ() - (int) pos1.getZ() + 1;
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for(int i = 0;i<5;i++){
-                                    for(int j = 0;j<4;j++) {
-                                        double Yl = 0.0;
-                                        double Xl = 0.0;
-                                        double Zl = 0.0;
-                                        while (true) {
-                                            if (j == 0) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 1) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 2) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 3) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            }
-                                            Yl += 0.1;
-                                            if (Yl > Ycm) break;
-                                        }
-                                        while (true) {
-                                            if (j == 0) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 1) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 2) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 3) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            }
-                                            Xl += 0.1;
-                                            if (Xl > Xcm) break;
-                                        }
-                                        while (true) {
-                                            if (j == 0) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 1) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 2) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            } else if (j == 3) {
-                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
-                                            }
-                                            Zl += 0.1;
-                                            if (Zl > Zcm) break;
-                                        }
-                                    }
-                                    try {
-                                        Thread.sleep(500);
-                                    } catch (InterruptedException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
-                                }
-                            }
-                        }).start();
-                    }
+                    ShowRangeParticle(p);
                 }
             }
             playerData.put(p.getUniqueId(),fillData);
@@ -182,6 +121,10 @@ public final class Autofill extends JavaPlugin implements Listener {
                     World world = getServer().getWorld("world");
                     if (playerData.containsKey(p.getUniqueId())) {
                         FillData fillData = playerData.get(p.getUniqueId());
+                        if(fillData.position1 == null || fillData.position2 == null){
+                            p.sendMessage("§8[§6AutoFill§8] §c選択ツール(" + wand.toString() + ")で範囲を選択してください");
+                            return false;
+                        }
                         if(!((fillData.copyPosition == null || fillData.position1.getWorld().getName().equalsIgnoreCase("world")) &&
                                 (fillData.copyPosition == null || fillData.position2.getWorld().getName().equalsIgnoreCase("world")) &&
                                 (fillData.copyPosition == null || fillData.copyPosition.getWorld().getName().equalsIgnoreCase("world")))){
@@ -196,14 +139,6 @@ public final class Autofill extends JavaPlugin implements Listener {
                                         return false;
                                     }
                                 }
-//                                if (fillData.position1.getY() > fillData.position2.getY()) {
-//                                    Location temp = fillData.position1;
-//                                    fillData.position1 = fillData.position2;
-//                                    fillData.position2 = temp;
-//                                }
-//                                int Yc = (int) fillData.position2.getY() - (int) fillData.position1.getY();
-//                                int Xc = (int) fillData.position2.getX() - (int) fillData.position1.getX();
-//                                int Zc = (int) fillData.position2.getZ() - (int) fillData.position1.getZ();
                                 Location pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
                                 Location pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
                                 int Yc = (int) pos2.getY() - (int) pos1.getY();
@@ -212,7 +147,6 @@ public final class Autofill extends JavaPlugin implements Listener {
                                 int iMax = Math.abs(Yc) + 1;
                                 int jMax = Math.abs(Xc) + 1;
                                 int kMax = Math.abs(Zc) + 1;
-                                //Location pos1 = fillData.position1;
                                 Location copyPos = fillData.copyPosition;
                                 BlockData setBlock = fillData.blockData;
                                 Material setBlockMaterial = setBlock.getMaterial();
@@ -263,6 +197,12 @@ public final class Autofill extends JavaPlugin implements Listener {
                                     p.sendMessage("総ブロック数: §a" + blocks + "ブロック(" + String.format("%.1f", ((double) blocks / 64)) + "スタック)");
                                 }
                                 else if(fillData.Mode == FillMode.Copy){
+                                    if(fillData.rotation == 0){
+                                        p.sendMessage("回転: §aなし");
+                                    }
+                                    else{
+                                        p.sendMessage("回転: §a" + fillData.rotation + "度");
+                                    }
                                     p.sendMessage("コピーモードの際はコピー元のブロックと同じブロックが要求されます");
                                 }
                                 UUID threadID = UUID.randomUUID();
@@ -364,9 +304,30 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                         if(p.isOnline() == false) process.placing = false;
                                                         if (process.placing == true) {
                                                             try {
-                                                                Block b = world.getBlockAt((int) copyPos.getX() + (j * finalXc),
-                                                                        (int) copyPos.getY() + (i * finalYc),
-                                                                        (int) copyPos.getZ() + (k * finalZc));
+                                                                Block b;
+                                                                if(fillData.rotation == 0){
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (j * finalXc),
+                                                                            (int) copyPos.getY() + (i * finalYc),
+                                                                            (int) copyPos.getZ() + (k * finalZc));
+                                                                }
+                                                                else if(fillData.rotation == 90){
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (kMax - 1) - (k * finalZc),
+                                                                            (int) copyPos.getY() + (i * finalYc),
+                                                                            (int) copyPos.getZ() + (j * finalXc));
+                                                                    copyBlock.rotate(StructureRotation.CLOCKWISE_90);
+                                                                }
+                                                                else if(fillData.rotation == 180){
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (j * finalXc),
+                                                                            (int) copyPos.getY() + (i * finalYc),
+                                                                            (int) copyPos.getZ() + (kMax - 1) - (k * finalZc));
+                                                                    copyBlock.rotate(StructureRotation.CLOCKWISE_180);
+                                                                }
+                                                                else{
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (k * finalZc),
+                                                                            (int) copyPos.getY() + (i * finalYc),
+                                                                            (int) copyPos.getZ() + (j * finalXc));
+                                                                    copyBlock.rotate(StructureRotation.COUNTERCLOCKWISE_90);
+                                                                }
                                                                 Sound copyBlockSound = copyBlock.getMaterial().createBlockData().getSoundGroup().getPlaceSound();
                                                                 boolean canBuild = canBuilt(regions, b.getLocation(), p);
                                                                 if (!checkReplaceableBlocks(b.getBlockData().getMaterial()) && canBuild ) {
@@ -426,14 +387,16 @@ public final class Autofill extends JavaPlugin implements Listener {
                             p.sendMessage("§8[§6AutoFill§8] §cこのブロックはautofillで設置できません");
                         }
                     }
+                    else{
+                        CheckUserData(p);
+                        p.sendMessage("§8[§6AutoFill§8] §c選択ツール(" + wand.toString() + ")で範囲を選択してください");
+                    }
                 } else {
                     p.sendMessage("§8[§6AutoFill§8] §cautofillは建築ワールドでしか使用できません");
                 }
             }
             if (command.getName().equalsIgnoreCase("cancelfill")) {
-                if (!playerData.containsKey(p.getUniqueId())) {
-                    playerData.put(p.getUniqueId(), new FillData());
-                }
+                CheckUserData(p);
                 boolean stop = false;
                 FillData fillData = playerData.get(p.getUniqueId());
                 if (fillData.thread.size() > 0) stop = true;
@@ -487,61 +450,93 @@ public final class Autofill extends JavaPlugin implements Listener {
                 }
             }
             else if(args[0].equalsIgnoreCase("mode")){
-                if (playerData.containsKey(p.getUniqueId())) {
-                    FillData fillData = playerData.get(p.getUniqueId());
-                    if (args.length > 1) {
-                        FillMode mode = null;
-                        for(FillMode modes:FillMode.values()){
-                            if(args[1].equalsIgnoreCase(modes.getString())){
-                                mode = modes;
-                            }
+                CheckUserData(p);
+                FillData fillData = playerData.get(p.getUniqueId());
+                if (args.length > 1) {
+                    FillMode mode = null;
+                    for(FillMode modes:FillMode.values()){
+                        if(args[1].equalsIgnoreCase(modes.getString())){
+                            mode = modes;
                         }
-                        if(mode != null){
-                            fillData.Mode = mode;
-                            p.sendMessage("§8[§6AutoFill§8] §a" + mode.getString() + "モード§fに変更しました");
-                            if(mode == FillMode.Fill){
-                                p.sendMessage("§8[§6AutoFill§8] §fFillモードでは選択範囲内部を選択したブロックで埋め立てます");
-                            }
-                            else if(mode == FillMode.Frame){
-                                p.sendMessage("§8[§6AutoFill§8] §fFrameモードでは選択範囲内部に枠組みを作成します");
-                            }
-                            else if(mode == FillMode.Copy){
-                                p.sendMessage("§8[§6AutoFill§8] §fCopyモードではコピーするブロック1つにつきそのコピー元のブロックと" + copyCost + "MOFUが必要となります");
-                                p.sendMessage("§8[§6AutoFill§8] §f範囲指定後、/autofill csetでコピー先始点を指定してください");
-                            }
-                        }
-                        else{
-                            String modeList = "";
-                            boolean first = false;
-                            for(FillMode modes:FillMode.values()){
-                                if(first == false) {
-                                    modeList += modes.getString();
-                                    first = true;
-                                }
-                                else{
-                                    modeList += "," + modes.getString();
-                                }
-                            }
-                            p.sendMessage("§8[§6AutoFill§8] §f現在設定可能なモードは§a" + modeList + "§fです");
-                        }
-                        playerData.put(p.getUniqueId(),fillData);
-                    } else {
-                        p.sendMessage("§8[§6AutoFill§8] §f現在は§a" + fillData.Mode + "モード§fに設定されています");
                     }
-                }
-                else{
-                    p.sendMessage("§8[§6AutoFill§8] §cモード選択は範囲設定後に行ってください");
+                    if(mode != null){
+                        fillData.Mode = mode;
+                        p.sendMessage("§8[§6AutoFill§8] §a" + mode.getString() + "モード§fに変更しました");
+                        if(mode == FillMode.Fill){
+                            p.sendMessage("§8[§6AutoFill§8] §fFillモードでは選択範囲内部を選択したブロックで埋め立てます");
+                        }
+                        else if(mode == FillMode.Frame){
+                            p.sendMessage("§8[§6AutoFill§8] §fFrameモードでは選択範囲内部に枠組みを作成します");
+                        }
+                        else if(mode == FillMode.Copy){
+                            p.sendMessage("§8[§6AutoFill§8] §fCopyモードではコピーするブロック1つにつきそのコピー元のブロックと" + copyCost + "MOFUが必要となります");
+                            p.sendMessage("§8[§6AutoFill§8] §f範囲指定後、/autofill csetでコピー先始点を指定してください");
+                        }
+                    }
+                    else{
+                        String modeList = "";
+                        boolean first = false;
+                        for(FillMode modes:FillMode.values()){
+                            if(first == false) {
+                                modeList += modes.getString();
+                                first = true;
+                            }
+                            else{
+                                modeList += "," + modes.getString();
+                            }
+                        }
+                        p.sendMessage("§8[§6AutoFill§8] §f現在設定可能なモードは§a" + modeList + "§fです");
+                    }
+                    playerData.put(p.getUniqueId(),fillData);
+                } else {
+                    p.sendMessage("§8[§6AutoFill§8] §f現在は§a" + fillData.Mode + "モード§fに設定されています");
                 }
             }
             else if(args[0].equalsIgnoreCase("cset")){
-                if (playerData.containsKey(p.getUniqueId())) {
-                    FillData fillData = playerData.get(p.getUniqueId());
-                    p.sendMessage("§8[§6AutoFill§8] §fコピー先始点を選択ツール(" + wand.toString() + ")で設定してください");
-                    fillData.selectMode = SelectMode.Copy;
+                CheckUserData(p);
+                FillData fillData = playerData.get(p.getUniqueId());
+                p.sendMessage("§8[§6AutoFill§8] §fコピー先始点を選択ツール(" + wand.toString() + ")で設定してください");
+                fillData.selectMode = SelectMode.Copy;
+                playerData.put(p.getUniqueId(),fillData);
+            }
+            else if(args[0].equalsIgnoreCase("rotation")){
+                CheckUserData(p);
+                FillData fillData = playerData.get(p.getUniqueId());
+                if (args.length > 1) {
+                    boolean setCheck = true;
+                    if(args[1].equalsIgnoreCase("0")){
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§aなし§fに設定しました");
+                        fillData.rotation = 0;
+                    }
+                    else if(args[1].equalsIgnoreCase("90")){
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a90度§fに設定しました");
+                        fillData.rotation = 90;
+                    }
+                    else if(args[1].equalsIgnoreCase("180")){
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a180度§fに設定しました");
+                        fillData.rotation = 180;
+                    }
+                    else if(args[1].equalsIgnoreCase("270")){
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a90度§fに設定しました");
+                        fillData.rotation = 270;
+                    }
+                    else{
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向は§a0,90,180,270§fの中から選択できます");
+                        setCheck = false;
+                    }
+                    if(setCheck == true){
+                        p.sendMessage("§8[§6AutoFill§8] §f再度コピー開始地点を確認してください");
+                        p.sendMessage("§8[§6AutoFill§8] §fまた、回転方向設定はコピーモード時のみ適用されます");
+                        ShowRangeParticle(p);
+                    }
                     playerData.put(p.getUniqueId(),fillData);
-                }
-                else{
-                    p.sendMessage("§8[§6AutoFill§8] §cコピー先指定はは範囲設定後に行ってください");
+                } else {
+                    if(fillData.rotation == 0){
+                        p.sendMessage("§8[§6AutoFill§8] §f現在、回転方向は設定されていません");
+                    }
+                    else{
+                        p.sendMessage("§8[§6AutoFill§8] §f現在、回転方向は§a" + fillData.rotation + "度§fに設定されています");
+                    }
                 }
             }
         }
@@ -702,5 +697,85 @@ public final class Autofill extends JavaPlugin implements Listener {
         // Failsafe against lingering metadata
         if(block.hasMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS))
             block.removeMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS, mcMMO.p);
+    }
+    private void CheckUserData(Player p){
+        if(!playerData.containsKey(p.getUniqueId())){
+            playerData.put(p.getUniqueId(),new FillData());
+        }
+    }
+    private void ShowRangeParticle(Player p){
+        CheckUserData(p);
+        FillData fillData = playerData.get(p.getUniqueId());
+        if(fillData.position1 != null && fillData.position2 != null) {
+            Location pos1;
+            Location pos2;
+            if(fillData.rotation == 0 || fillData.rotation == 180){
+                pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
+                pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
+            }
+            else{
+                pos1 = new Location(null,Math.min(fillData.position1.getZ(),fillData.position2.getZ()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getX(),fillData.position2.getX()));
+                pos2 = new Location(null,Math.max(fillData.position1.getZ(),fillData.position2.getZ()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getX(),fillData.position2.getX()));
+            }
+            int Ycm = (int) pos2.getY() - (int) pos1.getY() + 1;
+            int Xcm = (int) pos2.getX() - (int) pos1.getX() + 1;
+            int Zcm = (int) pos2.getZ() - (int) pos1.getZ() + 1;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0;i<5;i++){
+                        for(int j = 0;j<4;j++) {
+                            double Yl = 0.0;
+                            double Xl = 0.0;
+                            double Zl = 0.0;
+                            while (true) {
+                                if (j == 0) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 1) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 2) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 3) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                }
+                                Yl += 0.1;
+                                if (Yl > Ycm) break;
+                            }
+                            while (true) {
+                                if (j == 0) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 1) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 2) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 3) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                }
+                                Xl += 0.1;
+                                if (Xl > Xcm) break;
+                            }
+                            while (true) {
+                                if (j == 0) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 1) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 2) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                } else if (j == 3) {
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                }
+                                Zl += 0.1;
+                                if (Zl > Zcm) break;
+                            }
+                        }
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
+            }).start();
+        }
     }
 }
