@@ -100,8 +100,72 @@ public final class Autofill extends JavaPlugin implements Listener {
                             ",Y:" + (int) e.getClickedBlock().getLocation().getY() +
                             ",Z:" + (int) e.getClickedBlock().getLocation().getZ() + "§f)");
                     p.sendMessage("始点は範囲選択されている領域の座標が小さい方からコピーされます");
+                    p.sendMessage("既に範囲選択がされている場合は範囲が表示されます");
                     fillData.copyPosition = e.getClickedBlock().getLocation();
                     fillData.selectMode = SelectMode.Normal;
+                    if(fillData.position1 != null && fillData.position2 != null) {
+                        Location pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
+                        Location pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
+                        int Ycm = (int) pos2.getY() - (int) pos1.getY() + 1;
+                        int Xcm = (int) pos2.getX() - (int) pos1.getX() + 1;
+                        int Zcm = (int) pos2.getZ() - (int) pos1.getZ() + 1;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for(int i = 0;i<5;i++){
+                                    for(int j = 0;j<4;j++) {
+                                        double Yl = 0.0;
+                                        double Xl = 0.0;
+                                        double Zl = 0.0;
+                                        while (true) {
+                                            if (j == 0) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 1) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 2) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 3) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            }
+                                            Yl += 0.1;
+                                            if (Yl > Ycm) break;
+                                        }
+                                        while (true) {
+                                            if (j == 0) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 1) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 2) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 3) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            }
+                                            Xl += 0.1;
+                                            if (Xl > Xcm) break;
+                                        }
+                                        while (true) {
+                                            if (j == 0) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 1) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 2) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            } else if (j == 3) {
+                                                p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                            }
+                                            Zl += 0.1;
+                                            if (Zl > Zcm) break;
+                                        }
+                                    }
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch (InterruptedException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                            }
+                        }).start();
+                    }
                 }
             }
             playerData.put(p.getUniqueId(),fillData);
