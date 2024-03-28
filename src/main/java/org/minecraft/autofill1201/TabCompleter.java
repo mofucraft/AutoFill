@@ -25,7 +25,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             }
         }
         else{
-            final String[] commands = { "mode","cset","rotation" };
+            final String[] commands = { "mode","cset","rotation","getlist" };
             StringUtil.copyPartialMatches(args[0], Arrays.asList(commands), completions);
         }
         //sort the list

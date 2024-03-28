@@ -3,6 +3,8 @@ package org.minecraft.autofill1201;
 import com.gamingmesh.jobs.Jobs;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.MetadataConstants;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -10,6 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -19,6 +22,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,6 +40,8 @@ import net.milkbowl.vault.economy.Economy;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public final class Autofill extends JavaPlugin implements Listener {
@@ -94,7 +100,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                     fillData.position2 = e.getClickedBlock().getLocation();
                 }
             }
-            else if(fillData.selectMode == SelectMode.Copy){
+            else if(fillData.selectMode == SelectMode.Copy) {
                 if (e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     p.sendMessage("§7---------------§8[§6AutoFill§8]§7---------------");
                     p.sendMessage("コピー先始点を設定しました(§aX:" + (int) e.getClickedBlock().getLocation().getX() +
@@ -103,27 +109,21 @@ public final class Autofill extends JavaPlugin implements Listener {
                     p.sendMessage("始点は範囲選択されている領域の座標が小さい方からコピーされます");
                     p.sendMessage("既に範囲選択がされている場合は範囲が表示されます");
                     p.sendMessage("/autofillコマンドを使用するとコピーが開始されます");
-                    if(e.getAction() == Action.LEFT_CLICK_BLOCK){
+                    if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                         fillData.copyPosition = e.getClickedBlock().getLocation();
-                    }
-                    else{
-                        if(e.getBlockFace().getOppositeFace() == BlockFace.UP){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,-1,0);
-                        }
-                        else if(e.getBlockFace().getOppositeFace() == BlockFace.DOWN){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,1,0);
-                        }
-                        else if(e.getBlockFace().getOppositeFace() == BlockFace.EAST){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(-1,0,0);
-                        }
-                        else if(e.getBlockFace().getOppositeFace() == BlockFace.WEST){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(1,0,0);
-                        }
-                        else if(e.getBlockFace().getOppositeFace() == BlockFace.SOUTH){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,0,-1);
-                        }
-                        else if(e.getBlockFace().getOppositeFace() == BlockFace.NORTH){
-                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,0,1);
+                    } else {
+                        if (e.getBlockFace().getOppositeFace() == BlockFace.UP) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0, -1, 0);
+                        } else if (e.getBlockFace().getOppositeFace() == BlockFace.DOWN) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0, 1, 0);
+                        } else if (e.getBlockFace().getOppositeFace() == BlockFace.EAST) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(-1, 0, 0);
+                        } else if (e.getBlockFace().getOppositeFace() == BlockFace.WEST) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(1, 0, 0);
+                        } else if (e.getBlockFace().getOppositeFace() == BlockFace.SOUTH) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0, 0, -1);
+                        } else if (e.getBlockFace().getOppositeFace() == BlockFace.NORTH) {
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0, 0, 1);
                         }
                     }
                     fillData.selectMode = SelectMode.Normal;
@@ -334,21 +334,21 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                             (int) copyPos.getZ() + (k * finalZc));
                                                                 }
                                                                 else if(fillData.rotation == 90){
-                                                                    b = world.getBlockAt((int) copyPos.getX() + (kMax - 1) - (k * finalZc),
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (k * finalZc),
                                                                             (int) copyPos.getY() + (i * finalYc),
                                                                             (int) copyPos.getZ() + (j * finalXc));
                                                                     copyBlock.rotate(StructureRotation.CLOCKWISE_90);
                                                                 }
                                                                 else if(fillData.rotation == 180){
-                                                                    b = world.getBlockAt((int) copyPos.getX() + (j * finalXc),
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (jMax - 1) - (j * finalXc),
                                                                             (int) copyPos.getY() + (i * finalYc),
                                                                             (int) copyPos.getZ() + (kMax - 1) - (k * finalZc));
                                                                     copyBlock.rotate(StructureRotation.CLOCKWISE_180);
                                                                 }
                                                                 else{
-                                                                    b = world.getBlockAt((int) copyPos.getX() + (k * finalZc),
+                                                                    b = world.getBlockAt((int) copyPos.getX() + (kMax - 1) - (k * finalZc),
                                                                             (int) copyPos.getY() + (i * finalYc),
-                                                                            (int) copyPos.getZ() + (j * finalXc));
+                                                                            (int) copyPos.getZ() + (jMax - 1) - (j * finalXc));
                                                                     copyBlock.rotate(StructureRotation.COUNTERCLOCKWISE_90);
                                                                 }
                                                                 Sound copyBlockSound = copyBlock.getMaterial().createBlockData().getSoundGroup().getPlaceSound();
@@ -563,6 +563,76 @@ public final class Autofill extends JavaPlugin implements Listener {
                     }
                 }
             }
+            else if(args[0].equalsIgnoreCase("getlist")){
+                CheckUserData(p);
+                FillData fillData = playerData.get(p.getUniqueId());
+                if (fillData.position1 == null || fillData.position2 == null){
+                    p.sendMessage("§8[§6AutoFill§8] §c材料リストは範囲設定後でなければ取得できません");
+                    return false;
+                }
+                else if(!fillData.position1.getWorld().getName().equalsIgnoreCase(fillData.position2.getWorld().getName())){
+                    p.sendMessage("§8[§6AutoFill§8] §c第一ポジションと第二ポジションは同じワールドでなければ取得できません");
+                    return false;
+                }
+                p.sendMessage("§8[§6AutoFill§8] §f材料リストを作成しました");
+                p.sendMessage("§8[§6AutoFill§8] §f(インベントリに空きがないと本が作成されません)");
+                Location pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
+                Location pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
+                int Yc = (int) pos2.getY() - (int) pos1.getY() + 1;
+                int Xc = (int) pos2.getX() - (int) pos1.getX() + 1;
+                int Zc = (int) pos2.getZ() - (int) pos1.getZ() + 1;
+                Map<Material,Integer> itemList = new HashMap<>();
+                for (int i = 0; i < Yc; i++) {
+                    for (int j = 0; j < Xc; j++) {
+                        for (int k = 0; k < Zc; k++) {
+                            Block b = fillData.position1.getWorld().getBlockAt((int) pos1.getX() + j,
+                                    (int) pos1.getY() + i,
+                                    (int) pos1.getZ() + k);
+                            if(!checkReplaceableBlocks(b.getType())){
+                                continue;
+                            }
+                            if(itemList.containsKey(b.getType())){
+                                int count = itemList.get(b.getType()) + 1;
+                                itemList.remove(b.getType());
+                                itemList.put(b.getType(),count);
+                            }
+                            else{
+                                itemList.put(b.getType(),1);
+                            }
+                        }
+                    }
+                }
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+                String formatNowDate = dtf.format(LocalDateTime.now());
+                List<String> pages = new ArrayList<>();
+                pages.add("§7-----§4§l材料リスト§7-----§r\n\n§7[§c作成日時§7]§r\n" + formatNowDate +
+                        "\n\n§7[§cリスト作成者§7]§r\n" + p.getName() +
+                        "\n\n§7[§c建造物の座標§7]§r\nX:" + pos1.getBlockX() + ",Y:" + pos1.getBlockY() + ",Z:" + pos1.getBlockZ() + " ~" +
+                        "\n  X:" + pos2.getBlockX() + ",Y:" + pos2.getBlockY() + ",Z:" + pos2.getBlockZ() +
+                        "\n\n§7[§c建造物のワールド§7]§r\n" + fillData.position1.getWorld().getName());
+                int lineCount = 0;
+                String pageText = "";
+                for(Map.Entry<Material, Integer> e : itemList.entrySet()){
+                    pageText += "- §9" + e.getKey().toString() + "§r\n";
+                    pageText += "  " + e.getValue().toString() + "個 (" + (int)Math.floor(e.getValue() / 64.0) + "st+" + (int)(e.getValue() - (Math.floor(e.getValue() / 64.0) * 64)) + "個)\n";
+                    lineCount++;
+                    if(lineCount >= 6){
+                        pages.add(pageText);
+                        pageText = "";
+                        lineCount = 0;
+                    }
+                }
+                if(lineCount != 0){
+                    pages.add(pageText);
+                }
+                ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
+                BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
+                bookMeta.setTitle("§6§l材料リスト");
+                bookMeta.setAuthor("AutoFill");
+                bookMeta.setPages(pages);
+                writtenBook.setItemMeta(bookMeta);
+                p.getInventory().addItem(writtenBook);
+            }
         }
         return false;
     }
@@ -730,7 +800,8 @@ public final class Autofill extends JavaPlugin implements Listener {
     private void ShowRangeParticle(Player p){
         CheckUserData(p);
         FillData fillData = playerData.get(p.getUniqueId());
-        if(fillData.position1 != null && fillData.position2 != null) {
+        if(fillData.position1 != null && fillData.position2 != null && fillData.copyPosition != null) {
+            Location cPosition = fillData.copyPosition.clone();
             Location pos1;
             Location pos2;
             if(fillData.rotation == 0 || fillData.rotation == 180){
@@ -754,39 +825,39 @@ public final class Autofill extends JavaPlugin implements Listener {
                             double Zl = 0.0;
                             while (true) {
                                 if (j == 0) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(0, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 1) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xcm, Yl, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 2) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(0, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 3) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xcm, Yl, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 }
                                 Yl += 0.1;
                                 if (Yl > Ycm) break;
                             }
                             while (true) {
                                 if (j == 0) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xl, 0, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 1) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xl, Ycm, 0), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 2) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, 0, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xl, 0, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 3) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xl, Ycm, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xl, Ycm, Zcm), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 }
                                 Xl += 0.1;
                                 if (Xl > Xcm) break;
                             }
                             while (true) {
                                 if (j == 0) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(0, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 1) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xcm, 0, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 2) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(0, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(0, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 } else if (j == 3) {
-                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, fillData.copyPosition.clone().add(Xcm, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
+                                    p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, cPosition.clone().add(Xcm, Ycm, Zl), 0, 0.001, 0, 0, 0, new Particle.DustTransition(Color.RED, Color.RED, 1));
                                 }
                                 Zl += 0.1;
                                 if (Zl > Zcm) break;
