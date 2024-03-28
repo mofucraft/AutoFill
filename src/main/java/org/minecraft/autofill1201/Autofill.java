@@ -321,6 +321,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                     ArrayList<BlockData> l3 = l2.get(j);
                                                     for (int k = 0; k < kMax; k++) {
                                                         BlockData copyBlock = l3.get(k);
+                                                        Material copyMaterial = Material.matchMaterial(copyBlock.getMaterial().getTranslationKey().replace("block.minecraft.",""));
                                                         if(!checkReplaceableBlocks(copyBlock.getMaterial())){
                                                             continue;
                                                         }
@@ -351,7 +352,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                             (int) copyPos.getZ() + (jMax - 1) - (j * finalXc));
                                                                     copyBlock.rotate(StructureRotation.COUNTERCLOCKWISE_90);
                                                                 }
-                                                                Sound copyBlockSound = copyBlock.getMaterial().createBlockData().getSoundGroup().getPlaceSound();
+                                                                Sound copyBlockSound = copyMaterial.createBlockData().getSoundGroup().getPlaceSound();
                                                                 boolean canBuild = canBuilt(regions, b.getLocation(), p);
                                                                 if (!checkReplaceableBlocks(b.getBlockData().getMaterial()) && canBuild ) {
                                                                     Inventory inv = p.getInventory();
@@ -360,16 +361,16 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                         process.placing = false;
                                                                         continue;
                                                                     }
-                                                                    if (inv.contains(copyBlock.getMaterial()) || p.hasPermission("mofucraft.staff")) {
+                                                                    if (inv.contains(copyMaterial) || p.hasPermission("mofucraft.staff")) {
                                                                         if(!p.hasPermission("mofucraft.staff")) {
-                                                                            int slot = inv.first(copyBlock.getMaterial());
+                                                                            int slot = inv.first(copyMaterial);
                                                                             ItemStack item = inv.getItem(slot);
                                                                             item.setAmount(item.getAmount() - 1);
                                                                             p.getInventory().setItem(slot, item);
                                                                         }
                                                                         Location bLoc = b.getLocation();
                                                                         if (cApi != null) {
-                                                                            cApi.logPlacement(p.getName(), b.getLocation(), copyBlock.getMaterial(), null);
+                                                                            cApi.logPlacement(p.getName(), b.getLocation(), copyMaterial, null);
                                                                         }
                                                                         setUnnaturalBlock(b);
                                                                         setType(b, copyBlock);
@@ -382,7 +383,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                                                                         });
                                                                         Thread.sleep(50);
                                                                     } else {
-                                                                        p.sendMessage("§8[§6AutoFill§8] §cコピー元のブロック(" + copyBlock.getMaterial().toString() + ")がインベントリに存在しないためautofillを終了します");
+                                                                        p.sendMessage("§8[§6AutoFill§8] §cコピー元のブロック(" + copyMaterial.toString() + ")がインベントリに存在しないためautofillを終了します");
                                                                         process.placing = false;
                                                                     }
                                                                 } else {
@@ -581,7 +582,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                 int Yc = (int) pos2.getY() - (int) pos1.getY() + 1;
                 int Xc = (int) pos2.getX() - (int) pos1.getX() + 1;
                 int Zc = (int) pos2.getZ() - (int) pos1.getZ() + 1;
-                Map<Material,Integer> itemList = new HashMap<>();
+                Map<String,Integer> itemList = new HashMap<>();
                 for (int i = 0; i < Yc; i++) {
                     for (int j = 0; j < Xc; j++) {
                         for (int k = 0; k < Zc; k++) {
@@ -591,13 +592,13 @@ public final class Autofill extends JavaPlugin implements Listener {
                             if(!checkReplaceableBlocks(b.getType())){
                                 continue;
                             }
-                            if(itemList.containsKey(b.getType())){
-                                int count = itemList.get(b.getType()) + 1;
-                                itemList.remove(b.getType());
-                                itemList.put(b.getType(),count);
+                            if(itemList.containsKey(b.getType().getTranslationKey())){
+                                int count = itemList.get(b.getType().getTranslationKey()) + 1;
+                                itemList.remove(b.getType().getTranslationKey());
+                                itemList.put(b.getType().getTranslationKey(),count);
                             }
                             else{
-                                itemList.put(b.getType(),1);
+                                itemList.put(b.getType().getTranslationKey(),1);
                             }
                         }
                     }
@@ -612,8 +613,8 @@ public final class Autofill extends JavaPlugin implements Listener {
                         "\n\n§7[§c建造物のワールド§7]§r\n" + fillData.position1.getWorld().getName());
                 int lineCount = 0;
                 String pageText = "";
-                for(Map.Entry<Material, Integer> e : itemList.entrySet()){
-                    pageText += "- §9" + e.getKey().toString() + "§r\n";
+                for(Map.Entry<String, Integer> e : itemList.entrySet()){
+                    pageText += "- §9" + Material.matchMaterial(e.getKey().replace("block.minecraft.","")) + "§r\n";
                     pageText += "  " + e.getValue().toString() + "個 (" + (int)Math.floor(e.getValue() / 64.0) + "st+" + (int)(e.getValue() - (Math.floor(e.getValue() / 64.0) * 64)) + "個)\n";
                     lineCount++;
                     if(lineCount >= 6){
