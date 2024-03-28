@@ -6,6 +6,7 @@ import com.gmail.nossr50.util.MetadataConstants;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.command.Command;
@@ -102,7 +103,29 @@ public final class Autofill extends JavaPlugin implements Listener {
                     p.sendMessage("始点は範囲選択されている領域の座標が小さい方からコピーされます");
                     p.sendMessage("既に範囲選択がされている場合は範囲が表示されます");
                     p.sendMessage("/autofillコマンドを使用するとコピーが開始されます");
-                    fillData.copyPosition = e.getClickedBlock().getLocation();
+                    if(e.getAction() == Action.LEFT_CLICK_BLOCK){
+                        fillData.copyPosition = e.getClickedBlock().getLocation();
+                    }
+                    else{
+                        if(e.getBlockFace().getOppositeFace() == BlockFace.UP){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,-1,0);
+                        }
+                        else if(e.getBlockFace().getOppositeFace() == BlockFace.DOWN){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,1,0);
+                        }
+                        else if(e.getBlockFace().getOppositeFace() == BlockFace.EAST){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(-1,0,0);
+                        }
+                        else if(e.getBlockFace().getOppositeFace() == BlockFace.WEST){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(1,0,0);
+                        }
+                        else if(e.getBlockFace().getOppositeFace() == BlockFace.SOUTH){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,0,-1);
+                        }
+                        else if(e.getBlockFace().getOppositeFace() == BlockFace.NORTH){
+                            fillData.copyPosition = e.getClickedBlock().getLocation().add(0,0,1);
+                        }
+                    }
                     fillData.selectMode = SelectMode.Normal;
                     ShowRangeParticle(p);
                 }
@@ -496,6 +519,7 @@ public final class Autofill extends JavaPlugin implements Listener {
                 CheckUserData(p);
                 FillData fillData = playerData.get(p.getUniqueId());
                 p.sendMessage("§8[§6AutoFill§8] §fコピー先始点を選択ツール(" + wand.toString() + ")で設定してください");
+                p.sendMessage("§8[§6AutoFill§8] §f左クリックでクリックしたブロック、右クリックでクリックしたブロックの面の上のブロックを選択できます");
                 fillData.selectMode = SelectMode.Copy;
                 playerData.put(p.getUniqueId(),fillData);
             }
@@ -509,15 +533,15 @@ public final class Autofill extends JavaPlugin implements Listener {
                         fillData.rotation = 0;
                     }
                     else if(args[1].equalsIgnoreCase("90")){
-                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a90度§fに設定しました");
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a90度§fに設定しました");
                         fillData.rotation = 90;
                     }
                     else if(args[1].equalsIgnoreCase("180")){
-                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a180度§fに設定しました");
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a180度§fに設定しました");
                         fillData.rotation = 180;
                     }
                     else if(args[1].equalsIgnoreCase("270")){
-                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を§a90度§fに設定しました");
+                        p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a270度§fに設定しました");
                         fillData.rotation = 270;
                     }
                     else{
