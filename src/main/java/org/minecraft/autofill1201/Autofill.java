@@ -575,64 +575,68 @@ public final class Autofill extends JavaPlugin implements Listener {
                     p.sendMessage("§8[§6AutoFill§8] §c第一ポジションと第二ポジションは同じワールドでなければ取得できません");
                     return false;
                 }
-                p.sendMessage("§8[§6AutoFill§8] §f材料リストを作成しました");
-                p.sendMessage("§8[§6AutoFill§8] §f(インベントリに空きがないと本が作成されません)");
-                Location pos1 = new Location(null,Math.min(fillData.position1.getX(),fillData.position2.getX()),Math.min(fillData.position1.getY(),fillData.position2.getY()),Math.min(fillData.position1.getZ(),fillData.position2.getZ()));
-                Location pos2 = new Location(null,Math.max(fillData.position1.getX(),fillData.position2.getX()),Math.max(fillData.position1.getY(),fillData.position2.getY()),Math.max(fillData.position1.getZ(),fillData.position2.getZ()));
-                int Yc = (int) pos2.getY() - (int) pos1.getY() + 1;
-                int Xc = (int) pos2.getX() - (int) pos1.getX() + 1;
-                int Zc = (int) pos2.getZ() - (int) pos1.getZ() + 1;
-                Map<String,Integer> itemList = new HashMap<>();
-                for (int i = 0; i < Yc; i++) {
-                    for (int j = 0; j < Xc; j++) {
-                        for (int k = 0; k < Zc; k++) {
-                            Block b = fillData.position1.getWorld().getBlockAt((int) pos1.getX() + j,
-                                    (int) pos1.getY() + i,
-                                    (int) pos1.getZ() + k);
-                            if(!checkReplaceableBlocks(b.getType())){
-                                continue;
-                            }
-                            if(itemList.containsKey(b.getType().getTranslationKey())){
-                                int count = itemList.get(b.getType().getTranslationKey()) + 1;
-                                itemList.remove(b.getType().getTranslationKey());
-                                itemList.put(b.getType().getTranslationKey(),count);
-                            }
-                            else{
-                                itemList.put(b.getType().getTranslationKey(),1);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Location pos1 = new Location(null, Math.min(fillData.position1.getX(), fillData.position2.getX()), Math.min(fillData.position1.getY(), fillData.position2.getY()), Math.min(fillData.position1.getZ(), fillData.position2.getZ()));
+                        Location pos2 = new Location(null, Math.max(fillData.position1.getX(), fillData.position2.getX()), Math.max(fillData.position1.getY(), fillData.position2.getY()), Math.max(fillData.position1.getZ(), fillData.position2.getZ()));
+                        int Yc = (int) pos2.getY() - (int) pos1.getY() + 1;
+                        int Xc = (int) pos2.getX() - (int) pos1.getX() + 1;
+                        int Zc = (int) pos2.getZ() - (int) pos1.getZ() + 1;
+                        Map<String, Integer> itemList = new HashMap<>();
+                        for (int i = 0; i < Yc; i++) {
+                            for (int j = 0; j < Xc; j++) {
+                                for (int k = 0; k < Zc; k++) {
+                                    Block b = fillData.position1.getWorld().getBlockAt((int) pos1.getX() + j,
+                                            (int) pos1.getY() + i,
+                                            (int) pos1.getZ() + k);
+                                    if (!checkReplaceableBlocks(b.getType())) {
+                                        continue;
+                                    }
+                                    if (itemList.containsKey(b.getType().getTranslationKey())) {
+                                        int count = itemList.get(b.getType().getTranslationKey()) + 1;
+                                        itemList.remove(b.getType().getTranslationKey());
+                                        itemList.put(b.getType().getTranslationKey(), count);
+                                    } else {
+                                        itemList.put(b.getType().getTranslationKey(), 1);
+                                    }
+                                }
                             }
                         }
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+                        String formatNowDate = dtf.format(LocalDateTime.now());
+                        List<String> pages = new ArrayList<>();
+                        pages.add("§7-----§4§l材料リスト§7-----§r\n\n§7[§c作成日時§7]§r\n" + formatNowDate +
+                                "\n\n§7[§cリスト作成者§7]§r\n" + p.getName() +
+                                "\n\n§7[§c建造物の座標§7]§r\nX:" + pos1.getBlockX() + ",Y:" + pos1.getBlockY() + ",Z:" + pos1.getBlockZ() + " ~" +
+                                "\n  X:" + pos2.getBlockX() + ",Y:" + pos2.getBlockY() + ",Z:" + pos2.getBlockZ() +
+                                "\n\n§7[§c建造物のワールド§7]§r\n" + fillData.position1.getWorld().getName());
+                        int lineCount = 0;
+                        String pageText = "";
+                        for (Map.Entry<String, Integer> e : itemList.entrySet()) {
+                            pageText += "- §9" + Material.matchMaterial(e.getKey().replace("block.minecraft.", "")) + "§r\n";
+                            pageText += "  " + e.getValue().toString() + "個 (" + (int) Math.floor(e.getValue() / 64.0) + "st+" + (int) (e.getValue() - (Math.floor(e.getValue() / 64.0) * 64)) + "個)\n";
+                            lineCount++;
+                            if (lineCount >= 6) {
+                                pages.add(pageText);
+                                pageText = "";
+                                lineCount = 0;
+                            }
+                        }
+                        if (lineCount != 0) {
+                            pages.add(pageText);
+                        }
+                        ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
+                        BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
+                        bookMeta.setTitle("§6§l材料リスト");
+                        bookMeta.setAuthor("AutoFill");
+                        bookMeta.setPages(pages);
+                        writtenBook.setItemMeta(bookMeta);
+                        p.getInventory().addItem(writtenBook);
+                        p.sendMessage("§8[§6AutoFill§8] §f材料リストを作成しました");
+                        p.sendMessage("§8[§6AutoFill§8] §f(インベントリに空きがないと本が作成されません)");
                     }
-                }
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                String formatNowDate = dtf.format(LocalDateTime.now());
-                List<String> pages = new ArrayList<>();
-                pages.add("§7-----§4§l材料リスト§7-----§r\n\n§7[§c作成日時§7]§r\n" + formatNowDate +
-                        "\n\n§7[§cリスト作成者§7]§r\n" + p.getName() +
-                        "\n\n§7[§c建造物の座標§7]§r\nX:" + pos1.getBlockX() + ",Y:" + pos1.getBlockY() + ",Z:" + pos1.getBlockZ() + " ~" +
-                        "\n  X:" + pos2.getBlockX() + ",Y:" + pos2.getBlockY() + ",Z:" + pos2.getBlockZ() +
-                        "\n\n§7[§c建造物のワールド§7]§r\n" + fillData.position1.getWorld().getName());
-                int lineCount = 0;
-                String pageText = "";
-                for(Map.Entry<String, Integer> e : itemList.entrySet()){
-                    pageText += "- §9" + Material.matchMaterial(e.getKey().replace("block.minecraft.","")) + "§r\n";
-                    pageText += "  " + e.getValue().toString() + "個 (" + (int)Math.floor(e.getValue() / 64.0) + "st+" + (int)(e.getValue() - (Math.floor(e.getValue() / 64.0) * 64)) + "個)\n";
-                    lineCount++;
-                    if(lineCount >= 6){
-                        pages.add(pageText);
-                        pageText = "";
-                        lineCount = 0;
-                    }
-                }
-                if(lineCount != 0){
-                    pages.add(pageText);
-                }
-                ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
-                BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
-                bookMeta.setTitle("§6§l材料リスト");
-                bookMeta.setAuthor("AutoFill");
-                bookMeta.setPages(pages);
-                writtenBook.setItemMeta(bookMeta);
-                p.getInventory().addItem(writtenBook);
+                }).start();
             }
         }
         return false;
