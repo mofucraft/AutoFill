@@ -1,7 +1,6 @@
 package org.minecraft.autofill;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
@@ -13,7 +12,11 @@ public class FillData {
     public BlockData blockData = null;
     public Location position1 = null;
     public Location position2 = null;
+    public Location copyPosition = null;
+    public int rotation = 0;
     public Map<UUID,Process> thread = new HashMap<>();
+    public FillMode Mode = FillMode.Fill;
+    public SelectMode selectMode = SelectMode.Normal;
     public FillData(){
 
     }

@@ -1,4 +1,4 @@
-package org.minecraft.autofill1204;
+package org.minecraft.autofill;
 
 public enum SelectMode {
     Normal,

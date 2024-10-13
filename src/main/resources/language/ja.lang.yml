@@ -1,0 +1,8 @@
+#必ずシングルクォーテーション(')で囲ってください
+reloadMessage: '[AutoFill] リロード完了'
+#使用可能変数: %language%
+languageSetMessage: '[AutoFill] 使用言語を%language%に変更しました'
+
+numberParseFailedMessage: '[AutoFill] 数値を入力してください'
+notEnoughArgumentMessage: '[AutoFill] 引数が足りません'
+notExistsLanguageMessage: '[AutoFill] 存在しない言語です'
