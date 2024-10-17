@@ -1,14 +1,14 @@
-package database;
+package database.list;
 
 import org.bukkit.entity.Player;
-import org.minecraft.autofill.FillData;
+import org.minecraft.autofill.UserData;
 
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
 
 public class PlayerStatusList {
-    private static final Map<UUID, FillData> playerData;
+    private static final Map<UUID, UserData> playerData;
 
     static{
         playerData = new Hashtable<>();
@@ -16,10 +16,10 @@ public class PlayerStatusList {
 
     public static void checkUserData(Player p){
         if(!playerData.containsKey(p.getUniqueId())){
-            playerData.put(p.getUniqueId(),new FillData());
+            playerData.put(p.getUniqueId(),new UserData());
         }
     }
-    public static FillData getPlayerData(Player p){
+    public static UserData getPlayerData(Player p){
         return playerData.get(p.getUniqueId());
     }
 

@@ -9,6 +9,7 @@ import command.common.CommandUtil;
 import command.argument.basecommand.Language;
 import command.argument.basecommand.Reload;
 import config.Config;
+import database.PlayerStatusDatabase;
 import database.common.DatabaseUtil;
 import event.PluginEventHandler;
 import language.LanguageUtil;
@@ -16,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -42,12 +44,17 @@ public class Util {
         plugin.saveDefaultConfig();
         plugin.saveResource("language/ja.lang.yml",false);
         plugin.saveResource("language/.lang.ymlの前の名前は2文字にしてください", false);
-        DatabaseUtil.initialize(plugin,"database.db");
         LanguageUtil.refreshLanguage(plugin);
         try {
             Config.refreshConfig(plugin);
         }
         catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        DatabaseUtil.initialize(plugin,"database.db");
+        try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
+            database.initialize();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         CoreProtectAPI.initialize(plugin);

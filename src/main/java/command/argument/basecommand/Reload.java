@@ -4,7 +4,7 @@ import command.common.CommandMethod;
 import common.PluginUtil;
 import common.Util;
 import config.Config;
-import database.StatusDatabase;
+import database.PlayerStatusDatabase;
 import language.LanguageUtil;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -26,7 +26,7 @@ public class Reload extends CommandMethod {
         Player p = (Player)sender;
         if(p.hasPermission("autofill.reload")) {
             Util.reloadPlugin(PluginUtil.getPlugin());
-            try(StatusDatabase database = new StatusDatabase()){
+            try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
                 p.sendMessage(LanguageUtil.getWord(database.getPlayerStatus(p).getUsingLanguage(),"reloadMessage"));
             } catch (SQLException e) {
                 throw new RuntimeException(e);

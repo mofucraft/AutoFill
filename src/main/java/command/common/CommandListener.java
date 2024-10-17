@@ -1,6 +1,5 @@
 package command.common;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
@@ -21,11 +20,11 @@ public class CommandListener implements CommandExecutor {
         this.commandMethods = tabCompleterListener.getCommandMethods();
         this.tabCompleterListener = tabCompleterListener;
         subCommandNames = tabCompleterListener.getSubCommandNames();
-        this.baseCommand = new BaseCommand();
+        this.baseCommand = new Command();
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         if(args.length < 1){
             return baseCommand.process(sender,command,label,args);
         }

@@ -2,7 +2,7 @@ package command.argument.basecommand;
 
 import command.common.CommandMethod;
 import database.PlayerStatus;
-import database.StatusDatabase;
+import database.PlayerStatusDatabase;
 import language.LanguageUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,7 +23,7 @@ public class Language extends CommandMethod {
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args) {
         Player p = (Player)sender;
-        try(StatusDatabase database = new StatusDatabase()){
+        try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
             if(args.length < 2) {
                 p.sendMessage(LanguageUtil.getWord(database.getPlayerStatus(p).getUsingLanguage(), "notEnoughArgumentMessage"));
                 return false;

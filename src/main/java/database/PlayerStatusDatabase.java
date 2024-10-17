@@ -6,20 +6,18 @@ import org.bukkit.entity.Player;
 import java.sql.*;
 import java.util.UUID;
 
-public class StatusDatabase implements AutoCloseable{
+public class PlayerStatusDatabase implements AutoCloseable{
     private final Connection con;
 
-    public StatusDatabase() throws SQLException {
+    public PlayerStatusDatabase() throws SQLException {
         this.con = DatabaseUtil.getConnection();
-        Initialize();
     }
 
-    private int Initialize() throws SQLException {
+    public int initialize() throws SQLException {
         Statement statement = con.createStatement();
         String sql = "CREATE TABLE IF NOT EXISTS users(" +
                 "uuid CHAR(38) UNIQUE NOT NULL," +
                 "name VARCHAR(16) NOT NULL," +
-                "length INTEGER DEFAULT 0 NOT NULL," +
                 "using_language CHAR(2) DEFAULT 'ja' NOT NULL" +
                 ");";
         return statement.executeUpdate(sql);
@@ -31,7 +29,7 @@ public class StatusDatabase implements AutoCloseable{
         preparedStatement.setString(1, uuid.toString());
         ResultSet rs =  preparedStatement.executeQuery();
         if(rs.next()){
-            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getInt("length"), rs.getString("using_language"));
+            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"));
         }
         return null;
     }
@@ -48,9 +46,8 @@ public class StatusDatabase implements AutoCloseable{
         String sql = "UPDATE users SET name = ?, length = ?, using_language = ? WHERE uuid = ?;";
         PreparedStatement preparedStatement = con.prepareStatement(sql);
         preparedStatement.setString(1, playerStatus.getName());
-        preparedStatement.setInt(2, playerStatus.getLength());
-        preparedStatement.setString(3, playerStatus.getUsingLanguage());
-        preparedStatement.setString(4, playerStatus.getUuid().toString());
+        preparedStatement.setString(2, playerStatus.getUsingLanguage());
+        preparedStatement.setString(3, playerStatus.getUuid().toString());
         return preparedStatement.executeUpdate();
     }
 
@@ -63,15 +60,9 @@ public class StatusDatabase implements AutoCloseable{
         return playerStatus;
     }
 
-    public PlayerStatus setLength(Player player, int length) throws SQLException {
-        PlayerStatus playerStatus = getPlayerStatus(player);
-        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),length,playerStatus.getUsingLanguage()));
-        return getPlayerStatus(player);
-    }
-
     public PlayerStatus setLanguage(Player player, String language) throws SQLException {
         PlayerStatus playerStatus = getPlayerStatus(player);
-        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),playerStatus.getLength(),language));
+        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),language));
         return getPlayerStatus(player);
     }
 

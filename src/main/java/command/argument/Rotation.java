@@ -1,11 +1,11 @@
 package command.argument;
 
 import command.common.CommandMethod;
-import database.PlayerStatusList;
+import database.list.PlayerStatusList;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.minecraft.autofill.FillData;
+import org.minecraft.autofill.UserData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,24 +20,24 @@ public class Rotation extends CommandMethod {
     public boolean process(CommandSender sender, Command command, String label, String[] args) {
         Player p = (Player)sender;
         PlayerStatusList.checkUserData(p);
-        FillData fillData = PlayerStatusList.getPlayerData(p);
+        UserData userData = PlayerStatusList.getPlayerData(p);
         if (args.length > 1) {
             boolean setCheck = true;
             if(args[1].equalsIgnoreCase("0")){
                 p.sendMessage("§8[§6AutoFill§8] §f回転方向を§aなし§fに設定しました");
-                fillData.rotation = 0;
+                userData.setRotation(0);
             }
             else if(args[1].equalsIgnoreCase("90")){
                 p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a90度§fに設定しました");
-                fillData.rotation = 90;
+                userData.setRotation(90);
             }
             else if(args[1].equalsIgnoreCase("180")){
                 p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a180度§fに設定しました");
-                fillData.rotation = 180;
+                userData.setRotation(180);
             }
             else if(args[1].equalsIgnoreCase("270")){
                 p.sendMessage("§8[§6AutoFill§8] §f回転方向を時計回りに§a270度§fに設定しました");
-                fillData.rotation = 270;
+                userData.setRotation(270);
             }
             else{
                 p.sendMessage("§8[§6AutoFill§8] §f回転方向は§a0,90,180,270§fの中から選択できます");
@@ -49,11 +49,11 @@ public class Rotation extends CommandMethod {
                 //ShowRangeParticle(p);
             }
         } else {
-            if(fillData.rotation == 0){
+            if(userData.getRotation() == 0){
                 p.sendMessage("§8[§6AutoFill§8] §f現在、回転方向は設定されていません");
             }
             else{
-                p.sendMessage("§8[§6AutoFill§8] §f現在、回転方向は§a" + fillData.rotation + "度§fに設定されています");
+                p.sendMessage("§8[§6AutoFill§8] §f現在、回転方向は§a" + userData.getRotation() + "度§fに設定されています");
             }
         }
         return true;

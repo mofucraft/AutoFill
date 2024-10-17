@@ -1,11 +1,11 @@
 package command.argument;
 
 import command.common.CommandMethod;
-import database.PlayerStatusList;
+import database.list.PlayerStatusList;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.minecraft.autofill.FillData;
+import org.minecraft.autofill.UserData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +21,9 @@ public class Cancel extends CommandMethod {
         Player p = (Player)sender;
         PlayerStatusList.checkUserData(p);
         boolean stop = false;
-        FillData fillData = PlayerStatusList.getPlayerData(p);
-        if (!fillData.thread.isEmpty()) stop = true;
-        fillData.thread.forEach((uuid, process) -> {
+        UserData userData = PlayerStatusList.getPlayerData(p);
+        if (!userData.getThread().isEmpty()) stop = true;
+        userData.getThread().forEach((uuid, process) -> {
             process.placing = false;
         });
         if (stop) {

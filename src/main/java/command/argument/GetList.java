@@ -2,7 +2,7 @@ package command.argument;
 
 import command.common.CommandMethod;
 import config.Config;
-import database.PlayerStatusList;
+import database.list.PlayerStatusList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.minecraft.autofill.FillData;
+import org.minecraft.autofill.UserData;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,20 +26,20 @@ public class GetList extends CommandMethod {
     public boolean process(CommandSender sender, Command command, String label, String[] args) {
         Player p = (Player)sender;
         PlayerStatusList.checkUserData(p);
-        FillData fillData = PlayerStatusList.getPlayerData(p);
-        if (fillData.position1 == null || fillData.position2 == null){
+        UserData userData = PlayerStatusList.getPlayerData(p);
+        if (userData.getFirstPosition() == null || userData.getSecondPosition() == null){
             p.sendMessage("§8[§6AutoFill§8] §c材料リストは範囲設定後でなければ取得できません");
             return false;
         }
-        else if(!fillData.position1.getWorld().getName().equalsIgnoreCase(fillData.position2.getWorld().getName())){
+        else if(!userData.getFirstPosition().getWorld().getName().equalsIgnoreCase(userData.getSecondPosition().getWorld().getName())){
             p.sendMessage("§8[§6AutoFill§8] §c第一ポジションと第二ポジションは同じワールドでなければ取得できません");
             return false;
         }
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Location pos1 = new Location(null, Math.min(fillData.position1.getX(), fillData.position2.getX()), Math.min(fillData.position1.getY(), fillData.position2.getY()), Math.min(fillData.position1.getZ(), fillData.position2.getZ()));
-                Location pos2 = new Location(null, Math.max(fillData.position1.getX(), fillData.position2.getX()), Math.max(fillData.position1.getY(), fillData.position2.getY()), Math.max(fillData.position1.getZ(), fillData.position2.getZ()));
+                Location pos1 = new Location(null, Math.min(userData.getFirstPosition().getX(), userData.getSecondPosition().getX()), Math.min(userData.getFirstPosition().getY(), userData.getSecondPosition().getY()), Math.min(userData.getFirstPosition().getZ(), userData.getSecondPosition().getZ()));
+                Location pos2 = new Location(null, Math.max(userData.getFirstPosition().getX(), userData.getSecondPosition().getX()), Math.max(userData.getFirstPosition().getY(), userData.getSecondPosition().getY()), Math.max(userData.getFirstPosition().getZ(), userData.getSecondPosition().getZ()));
                 int Yc = (int) pos2.getY() - (int) pos1.getY() + 1;
                 int Xc = (int) pos2.getX() - (int) pos1.getX() + 1;
                 int Zc = (int) pos2.getZ() - (int) pos1.getZ() + 1;
@@ -47,7 +47,7 @@ public class GetList extends CommandMethod {
                 for (int i = 0; i < Yc; i++) {
                     for (int j = 0; j < Xc; j++) {
                         for (int k = 0; k < Zc; k++) {
-                            Block b = fillData.position1.getWorld().getBlockAt((int) pos1.getX() + j,
+                            Block b = userData.getFirstPosition().getWorld().getBlockAt((int) pos1.getX() + j,
                                     (int) pos1.getY() + i,
                                     (int) pos1.getZ() + k);
                             if (!Config.checkReplaceableBlocks(b.getType())) {
@@ -66,16 +66,16 @@ public class GetList extends CommandMethod {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
                 String formatNowDate = dtf.format(LocalDateTime.now());
                 List<String> pages = new ArrayList<>();
-                pages.add("§7-----§4§l材料リスト§7-----§r\n\n§7[§c作成日時§7]§r\n" + formatNowDate +
+                pages.add("§7-----§4§l材料リスト§7-----§r\n§7[§c作成日時§7]§r\n" + formatNowDate +
                         "\n\n§7[§cリスト作成者§7]§r\n" + p.getName() +
                         "\n\n§7[§c建造物の座標§7]§r\nX:" + pos1.getBlockX() + ",Y:" + pos1.getBlockY() + ",Z:" + pos1.getBlockZ() + " ~" +
                         "\n  X:" + pos2.getBlockX() + ",Y:" + pos2.getBlockY() + ",Z:" + pos2.getBlockZ() +
-                        "\n\n§7[§c建造物のワールド§7]§r\n" + fillData.position1.getWorld().getName());
+                        "\n\n§7[§c建造物のワールド§7]§r\n" + userData.getFirstPosition().getWorld().getName());
                 int lineCount = 0;
                 StringBuilder pageText = new StringBuilder();
                 for (Map.Entry<String, Integer> e : itemList.entrySet()) {
                     pageText.append("- §9").append(Material.matchMaterial(e.getKey().replace("block.minecraft.", ""))).append("§r\n");
-                    pageText.append("  ").append(e.getValue().toString()).append("個 (").append((int) Math.floor(e.getValue() / 64.0)).append("st+").append((int) (e.getValue() - (Math.floor(e.getValue() / 64.0) * 64))).append("個)\n");
+                    pageText.append("  ").append(e.getValue().toString()).append("個 (").append((int) Math.floor(e.getValue() / 64.0)).append("st+").append((int) (e.getValue() - (Math.floor(e.getValue() / 64.0) * 64))).append(")\n");
                     lineCount++;
                     if (lineCount >= 6) {
                         pages.add(pageText.toString());
