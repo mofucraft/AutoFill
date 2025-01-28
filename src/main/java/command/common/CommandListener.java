@@ -3,24 +3,26 @@ package command.common;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import javax.management.InstanceNotFoundException;
 import java.util.ArrayList;
 
 public class CommandListener implements CommandExecutor {
-    private static ArrayList<String> subCommandNames;
-    private final TabCompleterListener tabCompleterListener;
-    private final ArrayList<CommandMethod> commandMethods;
-    private final CommandMethod baseCommand;
+    private static ArrayList<CommandMethod> commandMethods;
+    private static CommandMethod baseCommand;
 
-    public static ArrayList<String> getSubCommandNames(){
-        return subCommandNames;
+    public static <T> T getCommandMethod(Class<T> commandMethodClass) throws InstanceNotFoundException {
+        if(commandMethodClass.isInstance(baseCommand)) return (T) baseCommand;
+        for(CommandMethod commandMethod: commandMethods){
+            if(commandMethodClass.isInstance(commandMethod)){
+                return (T) commandMethod;
+            }
+        }
+        throw new InstanceNotFoundException();
     }
-    public ArrayList<CommandMethod> getCommandMethods() { return this.commandMethods; }
 
     public CommandListener(TabCompleterListener tabCompleterListener){
-        this.commandMethods = tabCompleterListener.getCommandMethods();
-        this.tabCompleterListener = tabCompleterListener;
-        subCommandNames = tabCompleterListener.getSubCommandNames();
-        this.baseCommand = new Command();
+        commandMethods = tabCompleterListener.getCommandMethods();
+        baseCommand = new MainCommand();
     }
 
     @Override

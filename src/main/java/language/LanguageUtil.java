@@ -2,6 +2,7 @@ package language;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -40,18 +41,30 @@ public class LanguageUtil {
         return word.replaceAll("%%","%");
     }
 
+    public static void sendMessage(Player player, String language, String path){
+        String replacedMessage = getWord(language,path);
+        for(String message:replacedMessage.split("\n")){
+            player.sendMessage(message);
+        }
+    }
+
+    public static void sendReplacedMessage(Player player, String language, String path, Map<String, String> variables){
+        String replacedMessage = getReplacedWord(language,path,variables);
+        for(String message:replacedMessage.split("\n")){
+            player.sendMessage(message);
+        }
+    }
+
     public static void refreshLanguage(Plugin plugin){
         if(languageMap != null) languageMap.clear();
         languageMap = new HashMap<>();
         File languageFolder = new File(plugin.getDataFolder(), File.separator + "language");
-        if(languageFolder == null) return;
         for(File languageFile : languageFolder.listFiles()){
             if(languageFile.isFile() && languageFile.getAbsolutePath().contains(".lang.yml")){
                 if(languageFile.toPath().getFileName().toString().replace(".lang.yml","").length() == 2){
                     FileConfiguration languageYaml = YamlConfiguration.loadConfiguration(languageFile);
                     Map<String, String> _LanguageMap = new HashMap<>();
                     for(String path: getFirstPathList(languageFile)){
-                        System.out.println(path + ":" + languageYaml.getObject(path,String.class));
                         if(languageYaml.getObject(path, String.class) != null) _LanguageMap.put(path, languageYaml.getObject(path,String.class));
                     }
                     languageMap.put(languageFile.toPath().getFileName().toString().replace(".lang.yml",""),_LanguageMap);

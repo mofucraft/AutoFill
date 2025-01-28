@@ -1,40 +1,44 @@
 package command.common;
 
+import common.Util;
+import config.Config;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TabCompleterListener implements TabCompleter {
-    private final ArrayList<String> subCommandNames;
+    private final ArrayList<String> argumentNames;
+    private final ArrayList<String> adminArgumentNames;
 
     private final ArrayList<CommandMethod> commandMethods;
 
-    public ArrayList<String> getSubCommandNames(){
-        return this.subCommandNames;
-    }
-
-    public ArrayList<CommandMethod> getCommandMethods() { return this.commandMethods; }
-
+    protected ArrayList<CommandMethod> getCommandMethods() { return this.commandMethods; }
 
     public TabCompleterListener(ArrayList<CommandMethod> commandMethods){
         this.commandMethods = commandMethods;
-        this.subCommandNames = new ArrayList<>();
+        this.argumentNames = new ArrayList<>();
+        this.adminArgumentNames = new ArrayList<>();
         for(CommandMethod commandMethod : this.commandMethods){
-            this.subCommandNames.add(commandMethod.getArgumentName());
+            this.adminArgumentNames.add(commandMethod.getArgumentName());
+            if(!commandMethod.isAdminCommand()) {
+                this.argumentNames.add(commandMethod.getArgumentName());
+            }
         }
     }
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
         List<String> completions = new ArrayList<>();
+        boolean hasAdminPermission = Util.hasValidPermission((Player)commandSender, Config.getAdminPermission());
         if(args[0] == null || args[0].isEmpty()) {
-            completions = CommandListener.getSubCommandNames();
+            completions = this.getArgumentNames(hasAdminPermission);
         }
-        else if(CommandListener.getSubCommandNames().contains(args[0].toLowerCase())){
+        else if(this.getArgumentNames(hasAdminPermission).contains(args[0].toLowerCase())){
             for(CommandMethod commandMethod : commandMethods){
                 if(commandMethod.getArgumentName().equalsIgnoreCase(args[0])) {
                     completions = commandMethod.tabCompleterProcess(commandSender,command,label,args);
@@ -42,8 +46,17 @@ public class TabCompleterListener implements TabCompleter {
             }
         }
         else {
-            StringUtil.copyPartialMatches(args[0], CommandListener.getSubCommandNames(), completions);
+            StringUtil.copyPartialMatches(args[0], this.getArgumentNames(hasAdminPermission), completions);
         }
         return completions;
+    }
+
+    public ArrayList<String> getArgumentNames(boolean hasAdminPermission){
+        if(hasAdminPermission) {
+            return this.adminArgumentNames;
+        }
+        else{
+            return this.argumentNames;
+        }
     }
 }

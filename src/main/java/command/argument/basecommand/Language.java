@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class Language extends CommandMethod {
     public Language(){
-        this.argumentName = "language";
+        super("language",false);
     }
 
     @Override
@@ -25,17 +25,17 @@ public class Language extends CommandMethod {
         Player p = (Player)sender;
         try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
             if(args.length < 2) {
-                p.sendMessage(LanguageUtil.getWord(database.getPlayerStatus(p).getUsingLanguage(), "notEnoughArgumentMessage"));
+                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notEnoughArgument");
                 return false;
             }
             if(!LanguageUtil.getLanguageList().contains(args[1])){
-                p.sendMessage(LanguageUtil.getWord(database.getPlayerStatus(p).getUsingLanguage(), "notExistsLanguageMessage"));
+                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notExistsLanguage");
                 return false;
             }
             PlayerStatus playerStatus = database.setLanguage(p, args[1]);
             Map<String, String> variables = new HashMap<>();
             variables.put("language", playerStatus.getUsingLanguage());
-            p.sendMessage(LanguageUtil.getReplacedWord(database.getPlayerStatus(p).getUsingLanguage(),"languageSetMessage", variables));
+            LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(),"languageSet", variables);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

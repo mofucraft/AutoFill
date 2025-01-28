@@ -10,7 +10,7 @@ public enum FillMode {
         this.text = text;
     }
 
-    public String getString() {
+    public String toString() {
         return this.text;
     }
 }

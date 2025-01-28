@@ -2,7 +2,7 @@ package command.argument.basecommand;
 
 import command.common.CommandMethod;
 import common.PluginUtil;
-import common.Util;
+import common.InitializeUtil;
 import config.Config;
 import database.PlayerStatusDatabase;
 import language.LanguageUtil;
@@ -12,60 +12,32 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Reload extends CommandMethod {
     public Reload(){
-        this.argumentName = "reload";
+        super("reload",true);
     }
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args) {
         Player p = (Player)sender;
-        if(p.hasPermission("autofill.reload")) {
-            Util.reloadPlugin(PluginUtil.getPlugin());
-            try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
-                p.sendMessage(LanguageUtil.getWord(database.getPlayerStatus(p).getUsingLanguage(),"reloadMessage"));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-            p.sendMessage("§7---------------§8[§6AutoFill§8]§7---------------");
-            p.sendMessage("autofillコンフィグがリロードされました");
-            p.sendMessage("マテリアルが一つも一致しないものは赤く表示されます");
-            String disableLists = "";
-            String replaceableLists = "";
-            for (String str : Config.getDisableBlocks()) {
-                Material m = null;
-                try{
-                    m = Material.matchMaterial(str);
-                }
-                catch (Exception e){}
-                if(m != null){
-                    disableLists += "§a" + str + " , ";
-                }
-                else{
-                    disableLists += "§c" + str + " , ";
-                }
-            }
-            for (String str : Config.getReplaceableBlocks()) {
-                Material m = null;
-                try{
-                    m = Material.matchMaterial(str);
-                }
-                catch (Exception e){}
-                if(m != null){
-                    replaceableLists += "§a" + str + " , ";
-                }
-                else{
-                    replaceableLists += "§c" + str + " , ";
-                }
-            }
-            p.sendMessage("禁止ブロックリスト: " + disableLists);
-            p.sendMessage("上書き可能ブロックリスト: " + replaceableLists);
-            p.sendMessage("Jobs無効時間: " + Config.getJobsBlockTimer() + "秒");
-            p.sendMessage("Copyモードコスト(1ブロック当たり): " + Config.getCopyCost() + "MOFU");
+        InitializeUtil.reloadPlugin(PluginUtil.getPlugin());
+        try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
+            Map<String, String> variables = new HashMap<>();
+            variables.put("jobsDisableTime", Integer.toString(Config.getJobsDisableTime()));
+            variables.put("copyCost", Double.toString(Config.getCopyCost()));
+            variables.put("wand", Config.getWand().toString());
+            variables.put("adminPermission", Config.getAdminPermission());
+            variables.put("defaultMaxThread", Integer.toString(Config.getDefaultMaxThread()));
+            variables.put("allowWorldName", Config.getAllowWorldName());
+            variables.put("blockPlaceCooldown", Integer.toString(Config.getBlockPlaceCooldown()));
+            variables.put("disableBlockList", this.getMatchMaterialList(Config.getDisableBlockSource()));
+            variables.put("replaceableBlockList", this.getMatchMaterialList(Config.getReplaceableBlockSource()));
+            variables.put("nonConsumableBlockList", this.getMatchMaterialList(Config.getNonConsumableBlockSource()));
+            LanguageUtil.sendReplacedMessage(p,database.getPlayerStatus(p).getUsingLanguage(),"reload", variables);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return true;
     }
@@ -73,5 +45,19 @@ public class Reload extends CommandMethod {
     @Override
     public List<String> tabCompleterProcess(CommandSender commandSender, Command command, String label, String[] args) {
         return new ArrayList<>(Collections.singletonList(""));
+    }
+
+    private String getMatchMaterialList(ArrayList<String> list){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String str : list) {
+            Material m = Material.matchMaterial(str);
+            if(m != null){
+                stringBuilder.append("§a").append(str).append(" , ");
+            }
+            else{
+                stringBuilder.append("§c").append(str).append(" , ");
+            }
+        }
+        return stringBuilder.toString();
     }
 }

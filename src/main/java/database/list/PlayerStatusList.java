@@ -14,16 +14,10 @@ public class PlayerStatusList {
         playerData = new Hashtable<>();
     }
 
-    public static void checkUserData(Player p){
-        if(!playerData.containsKey(p.getUniqueId())){
-            playerData.put(p.getUniqueId(),new UserData());
-        }
-    }
     public static UserData getPlayerData(Player p){
+        if(!playerData.containsKey(p.getUniqueId())){
+            playerData.put(p.getUniqueId(),new UserData(p));
+        }
         return playerData.get(p.getUniqueId());
-    }
-
-    public static boolean containsKey(Player p){
-        return playerData.containsKey(p.getUniqueId());
     }
 }

@@ -6,7 +6,17 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public abstract class CommandMethod {
-    protected String argumentName = "";
+    private final String argumentName;
+    private final boolean adminCommand;
+
+    public boolean isAdminCommand(){
+        return this.adminCommand;
+    }
+
+    public CommandMethod(String argumentName, boolean adminCommand){
+        this.argumentName = argumentName;
+        this.adminCommand = adminCommand;
+    }
 
     public String getArgumentName(){
         return argumentName;

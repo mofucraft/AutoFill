@@ -2,7 +2,9 @@ package command.argument;
 
 import command.common.CommandMethod;
 import config.Config;
+import database.PlayerStatusDatabase;
 import database.list.PlayerStatusList;
+import language.LanguageUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,26 +15,34 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.minecraft.autofill.UserData;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class GetList extends CommandMethod {
     public GetList(){
-        this.argumentName = "getlist";
+        super("getlist",false);
     }
 
     @Override
     public boolean process(CommandSender sender, Command command, String label, String[] args) {
         Player p = (Player)sender;
-        PlayerStatusList.checkUserData(p);
         UserData userData = PlayerStatusList.getPlayerData(p);
         if (userData.getFirstPosition() == null || userData.getSecondPosition() == null){
-            p.sendMessage("§8[§6AutoFill§8] §c材料リストは範囲設定後でなければ取得できません");
+            try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "cantGenerateMaterialList");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             return false;
         }
         else if(!userData.getFirstPosition().getWorld().getName().equalsIgnoreCase(userData.getSecondPosition().getWorld().getName())){
-            p.sendMessage("§8[§6AutoFill§8] §c第一ポジションと第二ポジションは同じワールドでなければ取得できません");
+            try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notSamePositionWorld");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             return false;
         }
         new Thread(new Runnable() {
@@ -50,7 +60,7 @@ public class GetList extends CommandMethod {
                             Block b = userData.getFirstPosition().getWorld().getBlockAt((int) pos1.getX() + j,
                                     (int) pos1.getY() + i,
                                     (int) pos1.getZ() + k);
-                            if (!Config.checkReplaceableBlocks(b.getType())) {
+                            if (Config.isNonConsumableBlock(b.getType())) {
                                 continue;
                             }
                             if (itemList.containsKey(b.getType().getTranslationKey())) {
@@ -93,8 +103,11 @@ public class GetList extends CommandMethod {
                 bookMeta.setPages(pages);
                 writtenBook.setItemMeta(bookMeta);
                 p.getInventory().addItem(writtenBook);
-                p.sendMessage("§8[§6AutoFill§8] §f材料リストを作成しました");
-                p.sendMessage("§8[§6AutoFill§8] §f(インベントリに空きがないと本が作成されません)");
+                try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                    LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "createMaterialList");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }).start();
         return true;
