@@ -5,8 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.minecraft</groupId>
+    <artifactId>AutoFill</artifactId>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
+    <name>AutoFill</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -80,27 +83,37 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.coreprotect</groupId>
             <artifactId>coreprotect</artifactId>
+            <version>22.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.9</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.gmail.nossr50.mcMMO</groupId>
             <artifactId>mcMMO</artifactId>
+            <version>2.1.231</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Zrips</groupId>
             <artifactId>Jobs</artifactId>
             <version>4.17.2</version> <!-- Change the LATEST to the current version of jobs -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

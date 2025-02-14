@@ -1,16 +1,16 @@
-package org.minecraft.autofill1204;
+package org.minecraft.autofill;
 
 public enum FillMode {
-    Fill("Fill"),
-    Frame("Frame"),
-    Copy("Copy");
+    FILL("fill"),
+    FRAME("frame"),
+    COPY("copy");
     private final String text;
 
     FillMode(final String text) {
         this.text = text;
     }
 
-    public String getString() {
+    public String toString() {
         return this.text;
     }
 }
