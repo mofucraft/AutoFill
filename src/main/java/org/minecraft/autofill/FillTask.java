@@ -77,17 +77,17 @@ public class FillTask extends Thread {
                         this.userData.getSecondPosition().getY()),
                 Math.max(this.userData.getFirstPosition().getZ(),
                         this.userData.getSecondPosition().getZ()));
-        int Yc = (int) secondPosition.getY() - (int) firstPosition.getY();
         int Xc = (int) secondPosition.getX() - (int) firstPosition.getX();
+        int Yc = (int) secondPosition.getY() - (int) firstPosition.getY();
         int Zc = (int) secondPosition.getZ() - (int) firstPosition.getZ();
-        int iMax = Math.abs(Yc) + 1;
         int jMax = Math.abs(Xc) + 1;
+        int iMax = Math.abs(Yc) + 1;
         int kMax = Math.abs(Zc) + 1;
         Location copyPos = this.userData.getCopyPosition();
         BlockData setBlock = this.userData.getBlockData();
-        Yc = 1;
         if (Xc != 0) Xc = Xc / Math.abs(Xc);
         else Xc = 1;
+        Yc = 1;
         if (Zc != 0) Zc = Zc / Math.abs(Zc);
         else Zc = 1;
         int totalLoopCount = iMax * jMax * kMax;
@@ -217,7 +217,7 @@ public class FillTask extends Thread {
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (k * this.fillTaskParameter.getZSide()));
                                 }
                                 else if(rotationAngle == RotationAngle.ANGLE_90){
-                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (k * this.fillTaskParameter.getZSide()),
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (j * this.fillTaskParameter.getXSide()));
                                     copyBlockData.rotate(StructureRotation.CLOCKWISE_90);
@@ -229,11 +229,20 @@ public class FillTask extends Thread {
                                     copyBlockData.rotate(StructureRotation.CLOCKWISE_180);
                                 }
                                 else{
-                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()),
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (k * this.fillTaskParameter.getZSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (this.fillTaskParameter.getXSize() - 1) - (j * this.fillTaskParameter.getXSide()));
                                     copyBlockData.rotate(StructureRotation.COUNTERCLOCKWISE_90);
                                 }
+                                System.out.println("CopyX: " + this.fillTaskParameter.getCopyPosition().getX());
+                                System.out.println("CopyY: " + this.fillTaskParameter.getCopyPosition().getY());
+                                System.out.println("CopyZ: " + this.fillTaskParameter.getCopyPosition().getZ());
+                                System.out.println("X: " + this.fillTaskParameter.getXSide());
+                                System.out.println("Y: " + this.fillTaskParameter.getYSide());
+                                System.out.println("Z: " + this.fillTaskParameter.getZSide());
+                                System.out.println("j: " + j);
+                                System.out.println("i: " + i);
+                                System.out.println("k: " + k);
                                 if(Config.isDisabledBlock(copyBlockData.getMaterial())){
                                     continue;
                                 }
