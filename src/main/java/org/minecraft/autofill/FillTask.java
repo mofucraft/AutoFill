@@ -234,15 +234,6 @@ public class FillTask extends Thread {
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (this.fillTaskParameter.getXSize() - 1) - (j * this.fillTaskParameter.getXSide()));
                                     copyBlockData.rotate(StructureRotation.COUNTERCLOCKWISE_90);
                                 }
-                                System.out.println("CopyX: " + this.fillTaskParameter.getCopyPosition().getX());
-                                System.out.println("CopyY: " + this.fillTaskParameter.getCopyPosition().getY());
-                                System.out.println("CopyZ: " + this.fillTaskParameter.getCopyPosition().getZ());
-                                System.out.println("X: " + this.fillTaskParameter.getXSide());
-                                System.out.println("Y: " + this.fillTaskParameter.getYSide());
-                                System.out.println("Z: " + this.fillTaskParameter.getZSide());
-                                System.out.println("j: " + j);
-                                System.out.println("i: " + i);
-                                System.out.println("k: " + k);
                                 if(Config.isDisabledBlock(copyBlockData.getMaterial())){
                                     continue;
                                 }
