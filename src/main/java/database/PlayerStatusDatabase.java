@@ -19,7 +19,8 @@ public class PlayerStatusDatabase implements AutoCloseable{
                 "uuid CHAR(38) UNIQUE NOT NULL," +
                 "name VARCHAR(16) NOT NULL," +
                 "using_language CHAR(2) DEFAULT 'ja' NOT NULL," +
-                "max_thread INTEGER NOT NULL" +
+                "max_thread INTEGER NOT NULL," +
+                "use_thread INTEGER NOT NULL" +
                 ");";
         Statement statement = con.createStatement();
         return statement.executeUpdate(sql);
@@ -31,7 +32,7 @@ public class PlayerStatusDatabase implements AutoCloseable{
         preparedStatement.setString(1, uuid.toString());
         ResultSet rs =  preparedStatement.executeQuery();
         if(rs.next()){
-            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"));
+            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
         }
         return null;
     }private PlayerStatus getData(String name) throws SQLException {
@@ -40,27 +41,29 @@ public class PlayerStatusDatabase implements AutoCloseable{
         preparedStatement.setString(1, name);
         ResultSet rs =  preparedStatement.executeQuery();
         if(rs.next()){
-            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"));
+            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
         }
         return null;
     }
 
     private int addData(UUID uuid, String name) throws SQLException {
-        String sql = "INSERT INTO users(uuid, name, max_thread) VALUES(?,?,?);";
+        String sql = "INSERT INTO users(uuid, name, max_thread, use_thread) VALUES(?,?,?,?);";
         PreparedStatement preparedStatement = con.prepareStatement(sql);
         preparedStatement.setString(1, uuid.toString());
         preparedStatement.setString(2, name);
         preparedStatement.setInt(3,Config.getDefaultMaxThread());
+        preparedStatement.setInt(4,Config.getDefaultUseThread());
         return preparedStatement.executeUpdate();
     }
 
     private int updateData(PlayerStatus playerStatus) throws SQLException {
-        String sql = "UPDATE users SET name = ?, using_language = ?, max_thread = ? WHERE uuid = ?;";
+        String sql = "UPDATE users SET name = ?, using_language = ?, max_thread = ?, use_thread = ? WHERE uuid = ?;";
         PreparedStatement preparedStatement = con.prepareStatement(sql);
         preparedStatement.setString(1, playerStatus.getName());
         preparedStatement.setString(2, playerStatus.getUsingLanguage());
         preparedStatement.setInt(3, playerStatus.getMaxThread());
-        preparedStatement.setString(4, playerStatus.getUuid().toString());
+        preparedStatement.setInt(4, playerStatus.getUseThread());
+        preparedStatement.setString(5, playerStatus.getUuid().toString());
         return preparedStatement.executeUpdate();
     }
 
@@ -83,7 +86,7 @@ public class PlayerStatusDatabase implements AutoCloseable{
 
     public PlayerStatus setLanguage(Player player, String language) throws SQLException {
         PlayerStatus playerStatus = getPlayerStatus(player);
-        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),language,playerStatus.getMaxThread()));
+        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),language,playerStatus.getMaxThread(),playerStatus.getUseThread()));
         return getPlayerStatus(player);
     }
 

@@ -38,7 +38,8 @@ public class InitializeUtil {
                 new Rotation(),
                 new Cancel(),
                 new Info(),
-                new Set())));
+                new Set(),
+                new Setting())));
         reloadPlugin(plugin);
         isInitialized = true;
     }

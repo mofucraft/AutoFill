@@ -13,6 +13,7 @@ public class Config {
     private static Material wand = null;
     private static String adminPermission = "";
     private static int defaultMaxThread = 0;
+    private static int defaultUseThread = 0;
     private static String allowWorldName = "";
     private static int blockPlaceCooldown = 0;
     private static ArrayList<String> disableBlockSource = new ArrayList<>();
@@ -47,6 +48,10 @@ public class Config {
 
     public static int getDefaultMaxThread(){
         return defaultMaxThread;
+    }
+
+    public static int getDefaultUseThread() {
+        return defaultUseThread;
     }
 
     public static String getAllowWorldName(){
@@ -86,6 +91,9 @@ public class Config {
         //DEFAULT_MAX_THREAD
         defaultMaxThread = config.getValue("DEFAULT_MAX_THREAD",Integer.class,2);
         config.setComments("DEFAULT_MAX_THREAD",new ArrayList<>(Collections.singletonList("デフォルト使用可能スレッド(タスク)数")));
+        //DEFAULT_USE_THREAD
+        defaultMaxThread = config.getValue("DEFAULT_USE_THREAD",Integer.class,2);
+        config.setComments("DEFAULT_USE_THREAD",new ArrayList<>(Collections.singletonList("デフォルトスレッド数未指定時使用スレッド(タスク)数")));
         //ALLOW_WORLD_NAME
         allowWorldName = config.getValue("ALLOW_WORLD_NAME",String.class,"world");
         config.setComments("ALLOW_WORLD_NAME",new ArrayList<>(Collections.singletonList("AutoFill使用可能ワールド名")));

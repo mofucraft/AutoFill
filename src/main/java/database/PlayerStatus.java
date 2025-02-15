@@ -7,12 +7,14 @@ public class PlayerStatus {
     private String name;
     private String usingLanguage;
     private int maxThread;
+    private int useThread;
 
-    public PlayerStatus(UUID uuid, String name, String usingLanguage, int maxThread){
+    public PlayerStatus(UUID uuid, String name, String usingLanguage, int maxThread, int useThread){
         this.uuid = uuid;
         this.name = name;
         this.usingLanguage = usingLanguage;
         this.maxThread = maxThread;
+        this.useThread = useThread;
     }
 
     public UUID getUuid() {
@@ -45,5 +47,13 @@ public class PlayerStatus {
 
     public void setMaxThread(int maxThread) {
         this.maxThread = maxThread;
+    }
+
+    public int getUseThread() {
+        return useThread;
+    }
+
+    public void setUseThread(int useThread) {
+        this.useThread = useThread;
     }
 }
