@@ -39,7 +39,9 @@ public class InitializeUtil {
                 new Cancel(),
                 new Info(),
                 new Set(),
-                new Setting())));
+                new Setting(),
+                new Export(),
+                new Import())));
         reloadPlugin(plugin);
         isInitialized = true;
     }

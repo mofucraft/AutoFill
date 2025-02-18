@@ -2,6 +2,7 @@ package org.minecraft.autofill;
 
 import api.CoreProtectAPI;
 import api.EconomyAPI;
+import api.WorldGuardAPI;
 import com.gamingmesh.jobs.Jobs;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.MetadataConstants;
@@ -63,23 +64,35 @@ public class FillTask extends Thread {
 
     public FillTaskParameter generateParameter(){
         World world = getServer().getWorld(Config.getAllowWorldName());
-        Location firstPosition = new Location(null,
+        Location firstPosition = null;
+        Location secondPosition = null;
+        int Xc;
+        int Yc;
+        int Zc;
+        if(this.userData.getStructure() == null){
+            firstPosition = new Location(null,
                 Math.min(this.userData.getFirstPosition().getX(),
                         this.userData.getSecondPosition().getX()),
                 Math.min(this.userData.getFirstPosition().getY(),
                         this.userData.getSecondPosition().getY()),
                 Math.min(this.userData.getFirstPosition().getZ(),
                         this.userData.getSecondPosition().getZ()));
-        Location secondPosition = new Location(null,
-                Math.max(this.userData.getFirstPosition().getX(),
-                        this.userData.getSecondPosition().getX()),
-                Math.max(this.userData.getFirstPosition().getY(),
-                        this.userData.getSecondPosition().getY()),
-                Math.max(this.userData.getFirstPosition().getZ(),
-                        this.userData.getSecondPosition().getZ()));
-        int Xc = (int) secondPosition.getX() - (int) firstPosition.getX();
-        int Yc = (int) secondPosition.getY() - (int) firstPosition.getY();
-        int Zc = (int) secondPosition.getZ() - (int) firstPosition.getZ();
+            secondPosition = new Location(null,
+                    Math.max(this.userData.getFirstPosition().getX(),
+                            this.userData.getSecondPosition().getX()),
+                    Math.max(this.userData.getFirstPosition().getY(),
+                            this.userData.getSecondPosition().getY()),
+                    Math.max(this.userData.getFirstPosition().getZ(),
+                            this.userData.getSecondPosition().getZ()));
+            Xc = (int) secondPosition.getX() - (int) firstPosition.getX();
+            Yc = (int) secondPosition.getY() - (int) firstPosition.getY();
+            Zc = (int) secondPosition.getZ() - (int) firstPosition.getZ();
+        }
+        else{
+            Xc = this.userData.getStructure().get(0).size() - 1;
+            Yc = this.userData.getStructure().size() - 1;
+            Zc = this.userData.getStructure().get(0).get(0).size() - 1;
+        }
         int jMax = Math.abs(Xc) + 1;
         int iMax = Math.abs(Yc) + 1;
         int kMax = Math.abs(Zc) + 1;
@@ -123,6 +136,7 @@ public class FillTask extends Thread {
                 copyPos,
                 this.userData.getMode(),
                 this.userData.getRotationAngle(),
+                this.userData.getStructure(),
                 jMax,
                 iMax,
                 kMax,
@@ -167,7 +181,7 @@ public class FillTask extends Thread {
                                 if (this.userData.isCanPlaceBlock(b.hashCode())) {
                                     if (Config.isReplaceableBlock(b.getBlockData().getMaterial()) &&
                                             (hasAdminPermission ||
-                                                    isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
+                                                    WorldGuardAPI.isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
                                         if (hasAdminPermission || this.userData.takeItem(this.userData.getPlayer(), this.fillTaskParameter.getBlockData())) {
                                             setBlock(this.userData.getPlayer(), b, this.fillTaskParameter.getBlockData());
                                             Thread.sleep(Config.getBlockPlaceCooldown());
@@ -194,8 +208,7 @@ public class FillTask extends Thread {
                 if (!this.placing) break;
             }
         }
-        else if(this.userData.getMode() == FillMode.COPY){
-            RotationAngle rotationAngle = this.userData.getRotationAngle();
+        else if(this.userData.getMode() == FillMode.COPY && this.userData.getStructure() == null){
             for (int i = 0; i < this.fillTaskParameter.getYSize(); i++) {
                 for (int j = 0; j < this.fillTaskParameter.getXSize(); j++) {
                     for (int k = 0; k < this.fillTaskParameter.getZSize(); k++) {
@@ -211,18 +224,18 @@ public class FillTask extends Thread {
                         if (this.placing) {
                             try {
                                 Block b;
-                                if(rotationAngle == RotationAngle.ANGLE_0){
+                                if(this.fillTaskParameter.getRotationAngle() == RotationAngle.ANGLE_0){
                                     b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (j * this.fillTaskParameter.getXSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (k * this.fillTaskParameter.getZSide()));
                                 }
-                                else if(rotationAngle == RotationAngle.ANGLE_90){
+                                else if(this.fillTaskParameter.getRotationAngle() == RotationAngle.ANGLE_90){
                                     b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (j * this.fillTaskParameter.getXSide()));
                                     copyBlockData.rotate(StructureRotation.CLOCKWISE_90);
                                 }
-                                else if(rotationAngle == RotationAngle.ANGLE_180){
+                                else if(this.fillTaskParameter.getRotationAngle() == RotationAngle.ANGLE_180){
                                     b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getXSize() - 1) - (j * this.fillTaskParameter.getXSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
                                             (int) this.fillTaskParameter.getCopyPosition().getZ() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()));
@@ -240,7 +253,94 @@ public class FillTask extends Thread {
                                 if(this.userData.isCanPlaceBlock(b.hashCode())) {
                                     if (Config.isReplaceableBlock(b.getBlockData().getMaterial()) &&
                                             (hasAdminPermission ||
-                                                    isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
+                                                    WorldGuardAPI.isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
+                                        boolean nonConsumableBlock = Config.isNonConsumableBlock(copyBlockData.getMaterial());
+                                        if (!nonConsumableBlock && EconomyAPI.getAPI().getBalance(this.userData.getPlayer()) < Config.getCopyCost()) {
+                                            try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                                                LanguageUtil.sendMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(), "notEnoughMoney");
+                                            } catch (SQLException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            this.placing = false;
+                                            continue;
+                                        }
+                                        if (nonConsumableBlock ||
+                                                hasAdminPermission ||
+                                                this.userData.takeItem(this.userData.getPlayer(), copyBlockData)) {
+                                            setBlock(this.userData.getPlayer(), b, copyBlockData);
+                                            Thread.sleep(Config.getBlockPlaceCooldown());
+                                        } else {
+                                            try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
+                                                Map<String, String> variables = new HashMap<>();
+                                                variables.put("materialName", copyBlockData.getMaterial().toString());
+                                                LanguageUtil.sendReplacedMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(),"notEnoughCopyBlock", variables);
+                                            } catch (SQLException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            this.placing = false;
+                                        }
+                                    }
+                                    this.userData.removeFlag(b.hashCode());
+                                }
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        this.progress = (int)(((double)(i * this.fillTaskParameter.getXSize() * this.fillTaskParameter.getZSize()) + (j * this.fillTaskParameter.getZSize()) + k) / (double)this.fillTaskParameter.getTotalLoopCount() * 100.0);
+                        if (!this.placing) break;
+                    }
+                    if (!this.placing) break;
+                }
+                if (!this.placing) break;
+            }
+        }
+        else if(this.userData.getMode() == FillMode.COPY && this.userData.getStructure() != null){
+            for (int i = 0; i < this.fillTaskParameter.getStructure().size(); i++) {
+                for (int j = 0; j < this.fillTaskParameter.getStructure().get(0).size(); j++) {
+                    for (int k = 0; k < this.fillTaskParameter.getStructure().get(0).get(0).size(); k++) {
+                        BlockData copyBlockData = this.fillTaskParameter.getStructure()
+                                .get(i * this.fillTaskParameter.getYSide())
+                                .get(j * this.fillTaskParameter.getXSide())
+                                .get(k * this.fillTaskParameter.getZSide()).clone();
+                        if(copyBlockData.getMaterial().isAir()) {
+                            continue;
+                        }
+                        if(!this.userData.getPlayer().isOnline()) {
+                            this.placing = false;
+                        }
+                        if (this.placing) {
+                            try {
+                                Block b;
+                                if(this.fillTaskParameter.getRotationAngle() == RotationAngle.ANGLE_0){
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (j * this.fillTaskParameter.getXSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getZ() + (k * this.fillTaskParameter.getZSide()));
+                                }
+                                else if(this.fillTaskParameter.getRotationAngle()== RotationAngle.ANGLE_90){
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getZ() + (j * this.fillTaskParameter.getXSide()));
+                                    copyBlockData.rotate(StructureRotation.CLOCKWISE_90);
+                                }
+                                else if(this.fillTaskParameter.getRotationAngle() == RotationAngle.ANGLE_180){
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (this.fillTaskParameter.getXSize() - 1) - (j * this.fillTaskParameter.getXSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getZ() + (this.fillTaskParameter.getZSize() - 1) - (k * this.fillTaskParameter.getZSide()));
+                                    copyBlockData.rotate(StructureRotation.CLOCKWISE_180);
+                                }
+                                else{
+                                    b = this.fillTaskParameter.getWorld().getBlockAt((int) this.fillTaskParameter.getCopyPosition().getX() + (k * this.fillTaskParameter.getZSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getY() + (i * this.fillTaskParameter.getYSide()),
+                                            (int) this.fillTaskParameter.getCopyPosition().getZ() + (this.fillTaskParameter.getXSize() - 1) - (j * this.fillTaskParameter.getXSide()));
+                                    copyBlockData.rotate(StructureRotation.COUNTERCLOCKWISE_90);
+                                }
+                                if(Config.isDisabledBlock(copyBlockData.getMaterial())){
+                                    continue;
+                                }
+                                if(this.userData.isCanPlaceBlock(b.hashCode())) {
+                                    if (Config.isReplaceableBlock(b.getBlockData().getMaterial()) &&
+                                            (hasAdminPermission ||
+                                                    WorldGuardAPI.isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
                                         boolean nonConsumableBlock = Config.isNonConsumableBlock(copyBlockData.getMaterial());
                                         if (!nonConsumableBlock && EconomyAPI.getAPI().getBalance(this.userData.getPlayer()) < Config.getCopyCost()) {
                                             try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
@@ -351,21 +451,5 @@ public class FillTask extends Thread {
         // Failsafe against lingering metadata
         if(block.hasMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS))
             block.removeMetadata(MetadataConstants.METADATA_KEY_BONUS_DROPS, mcMMO.p);
-    }
-
-    private boolean isCanBuiltProtectedArea(RegionManager regionManager, Location location, Player player) {
-        if(Util.hasValidPermission(player,Config.getAdminPermission())) return true;
-        BlockVector3 position = BlockVector3.at(location.getX(),location.getY(),location.getZ());
-        ApplicableRegionSet set = regionManager.getApplicableRegions(position);
-        ProtectedRegion current = null;
-        int priorityLevel = Integer.MIN_VALUE;
-        for (ProtectedRegion pr: set) {
-            if(priorityLevel <= pr.getPriority()){
-                priorityLevel = pr.getPriority();
-                current = pr;
-            }
-        }
-        if(current == null) return true;
-        return current.getMembers().contains(player.getUniqueId()) || current.getOwners().contains(player.getUniqueId());
     }
 }

@@ -16,7 +16,7 @@ import java.util.*;
 
 public class Info extends CommandMethod {
     public Info(){
-        super("info",false);
+        super("info",false,true);
     }
 
     @Override

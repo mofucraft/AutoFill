@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class Mode extends CommandMethod {
     public Mode(){
-        super("mode",false);
+        super("mode",false,true);
     }
 
     @Override
@@ -38,6 +38,10 @@ public class Mode extends CommandMethod {
                     }
                 }
                 if(mode != null){
+                    if (userData.getStructure() != null){
+                        LanguageUtil.sendMessage(p, playerStatus.getUsingLanguage(),"discardStructureDataByChangeMode");
+                        userData.setStructure(null);
+                    }
                     userData.setMode(mode);
                     Map<String, String> variables = new HashMap<>();
                     variables.put("fillMode", mode.toString());

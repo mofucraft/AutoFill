@@ -16,7 +16,7 @@ import java.util.*;
 
 public class Reload extends CommandMethod {
     public Reload(){
-        super("reload",true);
+        super("reload",true,true);
     }
 
     @Override

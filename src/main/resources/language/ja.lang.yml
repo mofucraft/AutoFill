@@ -1,0 +1,169 @@
+#使用可能変数: %jobsDisableTime%,%copyCost%,%wand%,%adminPermission%,%defaultMaxThread%,%allowWorldName%,%blockPlaceCooldown%,%disableBlockList%,%replaceableBlockList%,%nonConsumableBlockList%
+reload: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §fAutoFillコンフィグがリロードされました
+  §fマテリアルが一つも一致しないものは赤く表示されます
+  §8-§fJobs無効時間: §a%jobsDisableTime%秒
+  §8-§fCopyモードコスト(1ブロック当たり): §a%copyCost%Coin
+  §8-§fWAND指定アイテム: §a%wand%
+  §8-§f管理者パーミッション: §a%adminPermission%
+  §8-§fデフォルト使用可能スレッド数: §a%defaultMaxThread%
+  §8-§fAutoFill使用可能ワールド名: §a%allowWorldName%
+  §8-§fAutoFillブロック設置クールダウン: §a%blockPlaceCooldown%millSeconds
+  §8-§f禁止ブロックリスト: %disableBlockList%
+  §8-§f上書き可能ブロックリスト: %replaceableBlockList%
+  §8-§fAutoFill使用時消費されないブロックリスト: %nonConsumableBlockList%
+#使用可能変数: %language%
+languageSet: |-
+  §8[§6AutoFill§8] §a使用言語を%language%に変更しました
+#使用可能変数: %wand%
+copyPositionSetting: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §aコピー先選択可能状態になりました
+  §fコピー先始点を選択ツール(%wand%)で設定してください
+  §f左クリックでクリックしたブロック、右クリックでクリックしたブロックの面の上のブロックを選択できます
+createMaterialList: |-
+  §8[§6AutoFill§8] §f材料リストを作成しました(インベントリに空きがないと本が作成されません)
+#使用可能変数: %maxThread%,%usingThread%,%threadStatus%
+information: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §8-§f使用可能最大スレッド数§7: §6%maxThread%
+  §8-§fスレッド使用状況§7: §6%usingThread%§7/§6%maxThread%
+  %threadStatus%
+#使用可能変数: %fillMode%
+changeFillMode: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §a%fillMode%モード§fに変更しました
+changeFillModeToFill: |-
+  §fFillモードでは選択範囲内部を選択したブロックで埋め立てます
+changeFillModeToFrame: |-
+  §fFrameモードでは選択範囲内部に枠組みを作成します
+#使用可能変数: %copyCost%
+changeFillModeToCopy: |-
+  §fCopyモードではコピーするブロック1つにつきそのコピー元のブロックと%copyCost%Coinが必要となります
+  §f範囲指定後、/autofill copysetでコピー先始点を指定してください
+#使用可能変数: %modeList%
+showAllFillMode: |-
+  §8[§6AutoFill§8] §f現在設定可能なモードは§a%modeList%§fです
+#使用可能変数: %fillMode%
+showCurrentFillMode: |-
+  §8[§6AutoFill§8] §f現在は§a%fillMode%モード§fに設定されています
+#使用可能変数: %angle%
+rotationAngleSet: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §fコピーする構造物の回転方向を§a時計回りに§a%angle%度§fに設定しました
+  §f(回転角度設定はコピーモード時のみ適用されます)
+#使用可能変数: %angle%
+currentRotationAngle: |-
+  §8[§6AutoFill§8] §f現在、回転方向は§a%angle%度§fに設定されています
+#使用可能変数: %selectPosition%,%selectMaterial%
+selectFirstPosition: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §f第1ポジションを設定しました(§a%selectPosition%§f)。範囲選択後/autofillコマンドで一括設置できます
+  §f選択中のブロック: §a%selectMaterial%
+#使用可能変数: %selectPosition%
+selectSecondPosition: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §f第2ポジションを設定しました(§a%selectPosition%§f)。範囲選択後/autofillコマンドで一括設置できます
+#使用可能変数: %selectPosition%
+selectCopyPosition: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §fコピー先始点を設定しました(§a%selectPosition%§f)
+  §f始点は範囲選択されている領域の座標が小さい方からコピーされます
+  §f既に範囲選択がされている場合は範囲が表示されます
+  §f/autofillコマンドを使用するとコピーが開始されます
+#使用可能変数: %fillMode%,%threadName%
+startAutoFill: |-
+  §7---------------§8[§6AutoFill§8]§7---------------
+  §fAutoFillを開始しました。§c/autofill cancel§fで中止できます
+  §f使用スレッド: §a%threadName%
+  §f設置モード: §a%fillMode%モード
+#使用可能変数: %threadName%,%materialName%,%totalBlock%,%totalBlockStack%
+startAutoFillInFillMode: |-
+  §f設置ブロック: §a%materialName%
+  §f総ブロック数: §a%totalBlock%ブロック(%totalBlockStack%スタック)
+#使用可能変数: %threadName%,%materialName%,%totalBlock%,%totalBlockStack%
+startAutoFillInFrameMode: |-
+  §f設置ブロック: §a%materialName%
+  §f総ブロック数: §a%totalBlock%ブロック(%totalBlockStack%スタック)
+#使用可能変数: %threadName%,%materialName%,%angle%
+startAutoFillInCopyMode: |-
+  §f回転角度: §a%angle%度
+  §fコピーモードの際はコピー元のブロックと同じブロックが要求されます
+#使用可能変数: %threadName%
+completionAutoFill: |-
+  §8[§6AutoFill§8] §aAutoFillが完了しました(%threadName%)
+#使用可能変数: %threadName%
+cancelAutoFill: |-
+  §8[§6AutoFill§8] §c%threadName%を停止しました
+#使用可能変数: %name%,%variableName%,%oldValue%,%value%
+updateUserData: |-
+  §8[§6AutoFill§8] §a%name%の%variableName%を%oldValue%から%value%へ変更しました
+exportStructureData: |-
+  §8[§6AutoFill§8] §a構造物データをエクスポートします。しばらくお待ちください...
+exportedStructureData: |-
+  §8[§6AutoFill§8] §a構造物データのエクスポートが完了しました
+  §8[§6AutoFill§8] §a必要に応じて名称の変更を行ってください
+successParseStructureData: |-
+  §8[§6AutoFill§8] §a構造物データをインポートし、COPYモードに変更しました
+  §8[§6AutoFill§8] §a/autofill copysetで構造物を展開する場所を指定してください
+
+#以下エラーメッセージ
+numberParseFailed: |-
+  §8[§6AutoFill§8] §c正しい形式の数値を入力してください
+notEnoughArgument: |-
+  §8[§6AutoFill§8] §c引数が足りません
+notExistsLanguage: |-
+  §8[§6AutoFill§8] §c存在しない言語です
+cantGenerateMaterialList: |-
+  §8[§6AutoFill§8] §c材料リストは範囲設定後でなければ取得できません
+notSamePositionWorld: |-
+  §8[§6AutoFill§8] §c第一ポジションと第二ポジションは同じワールドでなければ取得できません
+invalidRotationAngle: |-
+  §8[§6AutoFill§8] §c回転方向は§a0,90,180,270§fの中から選択せんたくしてください
+notAutofillAllowedWorld: |-
+  §8[§6AutoFill§8] §cAutoFillは許可されたワールドでしか使用できません
+#使用可能変数: %wand%
+notSettingPosition: |-
+  §8[§6AutoFill§8] §c選択ツール(%wand%)で範囲を選択してください
+#使用可能変数: %wand%
+notSetCopyPosition: |-
+  §8[§6AutoFill§8] §cCopyモードの際はコピー先を/autofill copysetを実行後に始点を設定アイテム(%wand%)でクリックして設定してください
+#使用可能変数: %materialName%
+cantPlaceBlockByAutofill: |-
+  §8[§6AutoFill§8] §cこのブロック(%materialName%)はAutoFillで設置できません
+selectedBlockIsNullOrNotBlock: |-
+  §8[§6AutoFill§8] §c設置ブロックが選択されていないか、選択されているブロックは設置可能なブロックではないため設置できません
+notEnoughBlock: |-
+  §8[§6AutoFill§8] §cブロックが足りなくなったためAutoFillを終了します
+notEnoughMoney: |-
+  §8[§6AutoFill§8] §c所持金が不足しているためAutoFillを終了します
+#使用可能変数: %materialName%
+notEnoughCopyBlock: |-
+  §8[§6AutoFill§8] §cコピー元のブロック(%materialName%)がインベントリに存在しないためautofillを終了します
+userDataNotFound: |-
+  §8[§6AutoFill§8] §cユーザデータが登録されていませんでした
+#使用可能変数: %maxThread%
+exceedMaximumThread: |-
+  §8[§6AutoFill§8] §c最大起動可能スレッド数を超えているため設定できません
+  §8[§6AutoFill§8] §c1から%maxThread%の範囲で指定してください
+exportingNow: |-
+  §8[§6AutoFill§8] §c構造物データのエクスポートは同時実行できません
+unknownError: |-
+  §8[§6AutoFill§8] §c不明なエラーが発生しました。管理者へお問い合わせください
+tooBigStructureDataSize: |-
+  §8[§6AutoFill§8] §c構造物データが大きすぎるため、エクスポートできませんでした
+  §8[§6AutoFill§8] §c選択範囲を縮小し、再度エクスポートを行ってください
+parseFailedStructureData: |-
+  §8[§6AutoFill§8] §c構造物データの取得に失敗しました
+notHeldStructureDataBook: |-
+  §8[§6AutoFill§8] §c構造物データが記載された本をメインハンドにもってインポートを行ってください
+importingNow: |-
+  §8[§6AutoFill§8] §c構造物データのインポートは同時実行できません
+discardStructureData: |-
+  §8[§6AutoFill§8] §c新しいポジションが設定されたため、構造物データが破棄されました
+discardStructureDataByChangeMode: |-
+  §8[§6AutoFill§8] §cモードが変更されたため、構造物データが破棄されました
+otherPlayerProtectionArea: |-
+  §8[§6AutoFill§8] §cアクセスできない領域保護が選択範囲に含まれているため、エクスポートできません
+  

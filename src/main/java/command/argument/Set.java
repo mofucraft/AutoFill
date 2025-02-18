@@ -16,7 +16,7 @@ import java.util.*;
 
 public class Set extends CommandMethod {
     public Set(){
-        super("set",true);
+        super("set",true,true);
     }
 
     @Override

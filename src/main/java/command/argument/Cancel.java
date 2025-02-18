@@ -15,7 +15,7 @@ import java.util.*;
 
 public class Cancel extends CommandMethod {
     public Cancel(){
-        super("cancel",false);
+        super("cancel",false,true);
     }
 
     @Override

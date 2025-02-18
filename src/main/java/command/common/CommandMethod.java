@@ -8,14 +8,20 @@ import java.util.List;
 public abstract class CommandMethod {
     private final String argumentName;
     private final boolean adminCommand;
+    private final boolean showTabComplement;
 
     public boolean isAdminCommand(){
         return this.adminCommand;
     }
 
-    public CommandMethod(String argumentName, boolean adminCommand){
+    public boolean isShowTabComplement() {
+        return showTabComplement;
+    }
+
+    public CommandMethod(String argumentName, boolean adminCommand, boolean showTabComplement){
         this.argumentName = argumentName;
         this.adminCommand = adminCommand;
+        this.showTabComplement = showTabComplement;
     }
 
     public String getArgumentName(){

@@ -14,7 +14,7 @@ import java.util.*;
 
 public class MainCommand extends CommandMethod {
     public MainCommand(){
-        super("",false);
+        super("",false,false);
     }
 
     @Override

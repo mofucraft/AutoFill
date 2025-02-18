@@ -22,7 +22,7 @@ import java.util.*;
 
 public class GetList extends CommandMethod {
     public GetList(){
-        super("getlist",false);
+        super("getlist",false,true);
     }
 
     @Override

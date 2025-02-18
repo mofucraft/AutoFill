@@ -20,7 +20,7 @@ import java.util.*;
 
 public class Rotation extends CommandMethod {
     public Rotation(){
-        super("rotation",false);
+        super("rotation",false,true);
     }
 
     @Override

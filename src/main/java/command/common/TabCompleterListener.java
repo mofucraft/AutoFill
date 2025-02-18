@@ -24,9 +24,11 @@ public class TabCompleterListener implements TabCompleter {
         this.argumentNames = new ArrayList<>();
         this.adminArgumentNames = new ArrayList<>();
         for(CommandMethod commandMethod : this.commandMethods){
-            this.adminArgumentNames.add(commandMethod.getArgumentName());
-            if(!commandMethod.isAdminCommand()) {
-                this.argumentNames.add(commandMethod.getArgumentName());
+            if(commandMethod.isShowTabComplement()) {
+                this.adminArgumentNames.add(commandMethod.getArgumentName());
+                if (!commandMethod.isAdminCommand()) {
+                    this.argumentNames.add(commandMethod.getArgumentName());
+                }
             }
         }
     }

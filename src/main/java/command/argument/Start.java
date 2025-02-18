@@ -19,7 +19,7 @@ import java.util.*;
 
 public class Start extends CommandMethod {
     public Start(){
-        super("start",false);
+        super("start",false,true);
     }
 
     @Override
@@ -29,34 +29,40 @@ public class Start extends CommandMethod {
         try(PlayerStatusDatabase database = new PlayerStatusDatabase()) {
             PlayerStatus playerStatus = database.getPlayerStatus(p);
             //起動可能かチェック
-            if(userData.getFirstPosition() == null || userData.getSecondPosition() == null){
-                Map<String, String> variables = new HashMap<>();
-                variables.put("wand", Config.getWand().toString());
-                LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(),"notSettingPosition", variables);
-                return false;
+            if(userData.getStructure() == null) {
+                if (userData.getFirstPosition() == null || userData.getSecondPosition() == null) {
+                    Map<String, String> variables = new HashMap<>();
+                    variables.put("wand", Config.getWand().toString());
+                    LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notSettingPosition", variables);
+                    return false;
+                }
+                if (!(p.getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName()) &&
+                        (userData.getCopyPosition() == null || userData.getFirstPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())) &&
+                        (userData.getCopyPosition() == null || userData.getSecondPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())) &&
+                        (userData.getCopyPosition() == null || userData.getCopyPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())))) {
+                    LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notAutofillAllowedWorld");
+                    return false;
+                }
             }
-            if(!(p.getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName()) &&
-                    (userData.getCopyPosition() == null || userData.getFirstPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())) &&
-                    (userData.getCopyPosition() == null || userData.getSecondPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())) &&
-                    (userData.getCopyPosition() == null || userData.getCopyPosition().getWorld().getName().equalsIgnoreCase(Config.getAllowWorldName())))){
-                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notAutofillAllowedWorld");
-                return false;
+            if(userData.getMode() == FillMode.FILL || userData.getMode() == FillMode.FRAME) {
+                if (Config.isDisabledBlock(userData.getBlockData().getMaterial())) {
+                    Map<String, String> variables = new HashMap<>();
+                    variables.put("materialName", userData.getBlockData().getMaterial().toString());
+                    LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "cantPlaceBlockByAutofill", variables);
+                    return false;
+                }
+                if (userData.getBlockData() == null && !userData.getBlockData().getMaterial().isBlock()) {
+                    LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "selectedBlockIsNullOrNotBlock");
+                    return false;
+                }
             }
-            if(userData.getMode() == FillMode.COPY && userData.getCopyPosition() == null){
-                Map<String, String> variables = new HashMap<>();
-                variables.put("wand", Config.getWand().toString());
-                LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(),"notSetCopyPosition", variables);
-                return false;
-            }
-            if(Config.isDisabledBlock(userData.getBlockData().getMaterial())) {
-                Map<String, String> variables = new HashMap<>();
-                variables.put("materialName", userData.getBlockData().getMaterial().toString());
-                LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(),"cantPlaceBlockByAutofill", variables);
-                return false;
-            }
-            if(userData.getBlockData() == null && !userData.getBlockData().getMaterial().isBlock()) {
-                LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "selectedBlockIsNullOrNotBlock");
-                return false;
+            else if(userData.getMode() == FillMode.COPY){
+                if (userData.getMode() == FillMode.COPY && userData.getCopyPosition() == null) {
+                    Map<String, String> variables = new HashMap<>();
+                    variables.put("wand", Config.getWand().toString());
+                    LanguageUtil.sendReplacedMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "notSetCopyPosition", variables);
+                    return false;
+                }
             }
             //起動スレッド数取得
             int count = 1;

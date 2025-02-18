@@ -16,7 +16,7 @@ import java.util.*;
 
 public class CopySet extends CommandMethod {
     public CopySet(){
-        super("copyset",false);
+        super("copyset",false,true);
     }
 
     @Override

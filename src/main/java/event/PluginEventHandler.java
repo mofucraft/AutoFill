@@ -26,7 +26,7 @@ public class PluginEventHandler implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e){
         Player p = e.getPlayer();
-        if(e.hasItem() && e.getItem().getType() == Config.getWand()){
+        if(e.getClickedBlock() != null && e.hasItem() && e.getItem().getType() == Config.getWand()){
             UserData userData = PlayerStatusList.getPlayerData(p);
             try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
                 PlayerStatus playerStatus = database.getPlayerStatus(p);
@@ -35,6 +35,10 @@ public class PluginEventHandler implements Listener {
                         ",Y:" + (int) e.getClickedBlock().getLocation().getY() +
                         ",Z:" + (int) e.getClickedBlock().getLocation().getZ());
                 if(userData.getSelectMode() == SelectMode.NORMAL) {
+                    if (userData.getStructure() != null){
+                        LanguageUtil.sendMessage(p, playerStatus.getUsingLanguage(),"discardStructureData");
+                        userData.setStructure(null);
+                    }
                     if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                         variables.put("selectMaterial",e.getClickedBlock().getBlockData().getMaterial().toString());
                         LanguageUtil.sendReplacedMessage(p, playerStatus.getUsingLanguage(),"selectFirstPosition", variables);
@@ -77,6 +81,18 @@ public class PluginEventHandler implements Listener {
                             } else {
                                 pos1 = new Location(null, Math.min(userData.getFirstPosition().getZ(), userData.getSecondPosition().getZ()), Math.min(userData.getFirstPosition().getY(), userData.getSecondPosition().getY()), Math.min(userData.getFirstPosition().getX(), userData.getSecondPosition().getX()));
                                 pos2 = new Location(null, Math.max(userData.getFirstPosition().getZ(), userData.getSecondPosition().getZ()), Math.max(userData.getFirstPosition().getY(), userData.getSecondPosition().getY()), Math.max(userData.getFirstPosition().getX(), userData.getSecondPosition().getX()));
+                            }
+                            EffectUtil.showRangeParticle(p, userData.getCopyPosition(), pos1, pos2, Color.RED, Color.RED, 0.1f, 1000, 10);
+                        }
+                        if(userData.getStructure() != null){
+                            Location pos1;
+                            Location pos2;
+                            if (userData.getRotationAngle() == RotationAngle.ANGLE_0 || userData.getRotationAngle() == RotationAngle.ANGLE_180) {
+                                pos1 = new Location(null, 0, 0, 0);
+                                pos2 = new Location(null, userData.getStructure().get(0).size() - 1, userData.getStructure().size() - 1, userData.getStructure().get(0).get(0).size() - 1);
+                            } else {
+                                pos1 = new Location(null, 0, 0, 0);
+                                pos2 = new Location(null, userData.getStructure().get(0).get(0).size() - 1, userData.getStructure().size() - 1, userData.getStructure().get(0).size() - 1);
                             }
                             EffectUtil.showRangeParticle(p, userData.getCopyPosition(), pos1, pos2, Color.RED, Color.RED, 0.1f, 1000, 10);
                         }

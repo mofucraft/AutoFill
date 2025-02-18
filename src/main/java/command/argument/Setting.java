@@ -16,7 +16,7 @@ import java.util.*;
 
 public class Setting extends CommandMethod {
     public Setting(){
-        super("setting",false);
+        super("setting",false,true);
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class FillTaskParameter {
@@ -17,6 +18,7 @@ public class FillTaskParameter {
     private final Location copyPosition;
     private final FillMode fillMode;
     private final RotationAngle rotationAngle;
+    private final ArrayList<ArrayList<ArrayList<BlockData>>> structure;
     private final int xSize;
     private final int ySize;
     private final int zSize;
@@ -26,7 +28,7 @@ public class FillTaskParameter {
     private final long totalLoopCount;
     private final long totalBlockCount;
 
-    public FillTaskParameter(UUID threadId, int threadNumber, UserData userData, World world, BlockData blockData, Location firstPosition, Location secondPosition, Location copyPosition, FillMode fillMode, RotationAngle rotationAngle, int xSize, int ySize, int zSize, int xSide, int ySide, int zSide, long totalLoopCount, long totalBlockCount) {
+    public FillTaskParameter(UUID threadId, int threadNumber, UserData userData, World world, BlockData blockData, Location firstPosition, Location secondPosition, Location copyPosition, FillMode fillMode, RotationAngle rotationAngle, ArrayList<ArrayList<ArrayList<BlockData>>> structure, int xSize, int ySize, int zSize, int xSide, int ySide, int zSide, long totalLoopCount, long totalBlockCount) {
         this.threadId = threadId;
         this.threadNumber = threadNumber;
         this.userData = userData;
@@ -37,6 +39,7 @@ public class FillTaskParameter {
         this.copyPosition = copyPosition;
         this.fillMode = fillMode;
         this.rotationAngle = rotationAngle;
+        this.structure = structure;
         this.xSize = xSize;
         this.ySize = ySize;
         this.zSize = zSize;
@@ -85,6 +88,10 @@ public class FillTaskParameter {
 
     public RotationAngle getRotationAngle() {
         return rotationAngle;
+    }
+
+    public ArrayList<ArrayList<ArrayList<BlockData>>> getStructure() {
+        return structure;
     }
 
     public int getXSize() {

@@ -20,6 +20,9 @@ public class UserData {
     private SelectMode selectMode;
     private FillMode mode;
     private RotationAngle rotationAngle;
+    private boolean exporting;
+    private boolean importing;
+    private ArrayList<ArrayList<ArrayList<BlockData>>> structure;
     private final ArrayList<FillTask> fillTaskList;
     private final HashSet<Integer> fillingBlockHashCode;
     private final Set<Integer> synchronizedFillingBlockHashCode;
@@ -77,6 +80,27 @@ public class UserData {
         this.rotationAngle = rotationAngle;
     }
 
+    public boolean isExporting() {
+        return exporting;
+    }
+    public void setExporting(boolean exporting) {
+        this.exporting = exporting;
+    }
+
+    public boolean isImporting() {
+        return importing;
+    }
+    public void setImporting(boolean importing) {
+        this.importing = importing;
+    }
+
+    public ArrayList<ArrayList<ArrayList<BlockData>>> getStructure() {
+        return structure;
+    }
+    public void setStructure(ArrayList<ArrayList<ArrayList<BlockData>>> structure) {
+        this.structure = structure;
+    }
+
     public ArrayList<FillTask> getFillTaskList(){
         return this.fillTaskList;
     }
@@ -90,6 +114,9 @@ public class UserData {
         this.selectMode = SelectMode.NORMAL;
         this.mode = FillMode.FILL;
         this.rotationAngle = RotationAngle.ANGLE_0;
+        this.exporting = false;
+        this.importing = false;
+        this.structure = null;
         this.fillTaskList = new ArrayList<>();
         this.fillingBlockHashCode = new HashSet<>();
         this.synchronizedFillingBlockHashCode = Collections.synchronizedSet(this.fillingBlockHashCode);

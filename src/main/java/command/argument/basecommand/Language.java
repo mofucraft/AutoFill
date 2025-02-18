@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class Language extends CommandMethod {
     public Language(){
-        super("language",false);
+        super("language",false,true);
     }
 
     @Override
