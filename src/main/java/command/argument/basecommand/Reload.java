@@ -30,6 +30,7 @@ public class Reload extends CommandMethod {
             variables.put("wand", Config.getWand().toString());
             variables.put("adminPermission", Config.getAdminPermission());
             variables.put("defaultMaxThread", Integer.toString(Config.getDefaultMaxThread()));
+            variables.put("defaultUseThread", Integer.toString(Config.getDefaultUseThread()));
             variables.put("allowWorldName", Config.getAllowWorldName());
             variables.put("blockPlaceCooldown", Integer.toString(Config.getBlockPlaceCooldown()));
             variables.put("disableBlockList", this.getMatchMaterialList(Config.getDisableBlockSource()));

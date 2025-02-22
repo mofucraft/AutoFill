@@ -23,7 +23,9 @@ public class PlayerStatusDatabase implements AutoCloseable{
                 "use_thread INTEGER NOT NULL" +
                 ");";
         Statement statement = con.createStatement();
-        return statement.executeUpdate(sql);
+        int result = statement.executeUpdate(sql);
+        statement.close();
+        return result;
     }
 
     private PlayerStatus getData(UUID uuid) throws SQLException {
@@ -31,19 +33,27 @@ public class PlayerStatusDatabase implements AutoCloseable{
         PreparedStatement preparedStatement = con.prepareStatement(sql);
         preparedStatement.setString(1, uuid.toString());
         ResultSet rs =  preparedStatement.executeQuery();
+        PlayerStatus playerStatus = null;
         if(rs.next()){
-            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
+            playerStatus = new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
         }
-        return null;
-    }private PlayerStatus getData(String name) throws SQLException {
+        rs.close();
+        preparedStatement.close();
+        return playerStatus;
+    }
+
+    private PlayerStatus getData(String name) throws SQLException {
         String sql = "SELECT * FROM users WHERE name = ?;";
         PreparedStatement preparedStatement = con.prepareStatement(sql);
         preparedStatement.setString(1, name);
         ResultSet rs =  preparedStatement.executeQuery();
+        PlayerStatus playerStatus = null;
         if(rs.next()){
-            return new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
+            playerStatus = new PlayerStatus(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("using_language"), rs.getInt("max_thread"), rs.getInt("use_thread"));
         }
-        return null;
+        rs.close();
+        preparedStatement.close();
+        return playerStatus;
     }
 
     private int addData(UUID uuid, String name) throws SQLException {
@@ -53,7 +63,9 @@ public class PlayerStatusDatabase implements AutoCloseable{
         preparedStatement.setString(2, name);
         preparedStatement.setInt(3,Config.getDefaultMaxThread());
         preparedStatement.setInt(4,Config.getDefaultUseThread());
-        return preparedStatement.executeUpdate();
+        int result = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        return result;
     }
 
     private int updateData(PlayerStatus playerStatus) throws SQLException {
@@ -64,30 +76,32 @@ public class PlayerStatusDatabase implements AutoCloseable{
         preparedStatement.setInt(3, playerStatus.getMaxThread());
         preparedStatement.setInt(4, playerStatus.getUseThread());
         preparedStatement.setString(5, playerStatus.getUuid().toString());
-        return preparedStatement.executeUpdate();
+        int result = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        return result;
     }
 
     public PlayerStatus getPlayerStatusByName(String name) throws SQLException {
-        return getData(name);
+        return this.getData(name);
     }
 
     public PlayerStatus getPlayerStatus(Player player) throws SQLException {
-        PlayerStatus playerStatus = getData(player.getUniqueId());
+        PlayerStatus playerStatus = this.getData(player.getUniqueId());
         if(playerStatus == null){
-            addData(player.getUniqueId(),player.getName());
-            return getPlayerStatus(player);
+            this.addData(player.getUniqueId(),player.getName());
+            return this.getPlayerStatus(player);
         }
         return playerStatus;
     }
 
     public int updatePlayerStatus(PlayerStatus playerStatus) throws SQLException {
-        return updateData(playerStatus);
+        return this.updateData(playerStatus);
     }
 
     public PlayerStatus setLanguage(Player player, String language) throws SQLException {
-        PlayerStatus playerStatus = getPlayerStatus(player);
-        updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),language,playerStatus.getMaxThread(),playerStatus.getUseThread()));
-        return getPlayerStatus(player);
+        PlayerStatus playerStatus = this.getPlayerStatus(player);
+        this.updateData(new PlayerStatus(playerStatus.getUuid(),playerStatus.getName(),language,playerStatus.getMaxThread(),playerStatus.getUseThread()));
+        return this.getPlayerStatus(player);
     }
 
     @Override

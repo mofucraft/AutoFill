@@ -7,12 +7,10 @@ import com.gamingmesh.jobs.Jobs;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import common.InventoryUtil;
 import common.PluginUtil;
 import common.Util;
 import config.Config;
@@ -31,6 +29,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -182,21 +181,27 @@ public class FillTask extends Thread {
                                     if (Config.isReplaceableBlock(b.getBlockData().getMaterial()) &&
                                             (hasAdminPermission ||
                                                     WorldGuardAPI.isCanBuiltProtectedArea(regions, b.getLocation(), this.userData.getPlayer()))) {
-                                        if (hasAdminPermission || this.userData.takeItem(this.userData.getPlayer(), this.fillTaskParameter.getBlockData())) {
+                                        if (hasAdminPermission) {
                                             setBlock(this.userData.getPlayer(), b, this.fillTaskParameter.getBlockData());
                                             Thread.sleep(Config.getBlockPlaceCooldown());
                                         } else {
-                                            try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
-                                                LanguageUtil.sendMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(), "notEnoughBlock");
-                                            } catch (SQLException e) {
-                                                throw new RuntimeException(e);
+                                            if (InventoryUtil.takeItemSync(this.userData.getPlayer(), this.fillTaskParameter.getBlockData())) {
+                                                setBlock(this.userData.getPlayer(), b, this.fillTaskParameter.getBlockData());
+                                                Thread.sleep(Config.getBlockPlaceCooldown());
                                             }
-                                            this.placing = false;
+                                            else{
+                                                try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                                                    LanguageUtil.sendMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(), "notEnoughBlock");
+                                                } catch (SQLException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                this.placing = false;
+                                            }
                                         }
                                     }
                                     this.userData.removeFlag(b.hashCode());
                                 }
-                            } catch (InterruptedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 System.out.println(e.getMessage());
                             }
                         }
@@ -264,25 +269,28 @@ public class FillTask extends Thread {
                                             this.placing = false;
                                             continue;
                                         }
-                                        if (nonConsumableBlock ||
-                                                hasAdminPermission ||
-                                                this.userData.takeItem(this.userData.getPlayer(), copyBlockData)) {
+                                        if (nonConsumableBlock || hasAdminPermission) {
                                             setBlock(this.userData.getPlayer(), b, copyBlockData);
                                             Thread.sleep(Config.getBlockPlaceCooldown());
                                         } else {
-                                            try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
-                                                Map<String, String> variables = new HashMap<>();
-                                                variables.put("materialName", copyBlockData.getMaterial().toString());
-                                                LanguageUtil.sendReplacedMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(),"notEnoughCopyBlock", variables);
-                                            } catch (SQLException e) {
-                                                throw new RuntimeException(e);
+                                            if (InventoryUtil.takeItemSync(this.userData.getPlayer(), copyBlockData)) {
+                                                setBlock(this.userData.getPlayer(), b, copyBlockData);
+                                                Thread.sleep(Config.getBlockPlaceCooldown());
+                                            } else {
+                                                try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                                                    Map<String, String> variables = new HashMap<>();
+                                                    variables.put("materialName", copyBlockData.getMaterial().toString());
+                                                    LanguageUtil.sendReplacedMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(), "notEnoughCopyBlock", variables);
+                                                } catch (SQLException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                this.placing = false;
                                             }
-                                            this.placing = false;
                                         }
                                     }
                                     this.userData.removeFlag(b.hashCode());
                                 }
-                            } catch (InterruptedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 System.out.println(e.getMessage());
                             }
                         }
@@ -351,25 +359,28 @@ public class FillTask extends Thread {
                                             this.placing = false;
                                             continue;
                                         }
-                                        if (nonConsumableBlock ||
-                                                hasAdminPermission ||
-                                                this.userData.takeItem(this.userData.getPlayer(), copyBlockData)) {
+                                        if (nonConsumableBlock || hasAdminPermission) {
                                             setBlock(this.userData.getPlayer(), b, copyBlockData);
                                             Thread.sleep(Config.getBlockPlaceCooldown());
                                         } else {
-                                            try(PlayerStatusDatabase database = new PlayerStatusDatabase()){
-                                                Map<String, String> variables = new HashMap<>();
-                                                variables.put("materialName", copyBlockData.getMaterial().toString());
-                                                LanguageUtil.sendReplacedMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(),"notEnoughCopyBlock", variables);
-                                            } catch (SQLException e) {
-                                                throw new RuntimeException(e);
+                                            if (InventoryUtil.takeItemSync(this.userData.getPlayer(), copyBlockData)) {
+                                                setBlock(this.userData.getPlayer(), b, copyBlockData);
+                                                Thread.sleep(Config.getBlockPlaceCooldown());
+                                            } else {
+                                                try (PlayerStatusDatabase database = new PlayerStatusDatabase()) {
+                                                    Map<String, String> variables = new HashMap<>();
+                                                    variables.put("materialName", copyBlockData.getMaterial().toString());
+                                                    LanguageUtil.sendReplacedMessage(this.userData.getPlayer(), database.getPlayerStatus(this.userData.getPlayer()).getUsingLanguage(), "notEnoughCopyBlock", variables);
+                                                } catch (SQLException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                this.placing = false;
                                             }
-                                            this.placing = false;
                                         }
                                     }
                                     this.userData.removeFlag(b.hashCode());
                                 }
-                            } catch (InterruptedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 System.out.println(e.getMessage());
                             }
                         }

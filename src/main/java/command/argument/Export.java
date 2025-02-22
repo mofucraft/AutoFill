@@ -6,6 +6,7 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import command.common.CommandMethod;
+import common.InventoryUtil;
 import common.PluginUtil;
 import common.Util;
 import config.Config;
@@ -39,6 +40,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class Export extends CommandMethod {
     public Export(){
@@ -199,10 +201,10 @@ public class Export extends CommandMethod {
                     bookMeta.setAuthor("AutoFill");
                     bookMeta.spigot().setPages(pages);
                     writtenBook.setItemMeta(bookMeta);
-                    p.getInventory().addItem(writtenBook);
+                    InventoryUtil.addItemSync(p, writtenBook);
                     LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "exportedStructureData");
                     userData.setExporting(false);
-                } catch (SQLException e) {
+                } catch (SQLException | ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }

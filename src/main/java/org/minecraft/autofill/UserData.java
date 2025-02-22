@@ -138,51 +138,6 @@ public class UserData {
         }
     }
 
-    public boolean takeItem(Player p, BlockData takeBlockData){
-        synchronized (p.getInventory()) {
-            Inventory inv = p.getInventory();
-            int slot = inv.first(takeBlockData.getMaterial());
-            if (slot == -1) {
-                return false;
-            }
-            int remove = 1;
-            if(takeBlockData instanceof Slab){
-                Slab.Type type = ((Slab)takeBlockData).getType();
-                if(type.equals(Slab.Type.DOUBLE)){
-                    remove = 2;
-                }
-            }
-            ItemStack item = inv.getItem(slot);
-            if(remove == 1) {
-                if (item.getAmount() - 1 > 0) {
-                    item.setAmount(item.getAmount() - 1);
-                    inv.setItem(slot, item);
-                } else {
-                    inv.setItem(slot, null);
-                }
-            }
-            else{
-                if (item.getAmount() - remove > 0) {
-                    item.setAmount(item.getAmount() - remove);
-                    inv.setItem(slot, item);
-                    return true;
-                } else {
-                    remove -= item.getAmount();
-                    inv.setItem(slot, null);
-                    int secondSlot = inv.first(takeBlockData.getMaterial());
-                    if (secondSlot == -1) {
-                        inv.setItem(slot, item);
-                        return false;
-                    }
-                    ItemStack secondItem = inv.getItem(secondSlot);
-                    secondItem.setAmount(secondItem.getAmount() - remove);
-                    inv.setItem(secondSlot, secondItem);
-                }
-            }
-            return true;
-        }
-    }
-
     public FillTaskParameter runFillTask() {
         try(PlayerStatusDatabase con = new PlayerStatusDatabase()){
             for(int i = 0;i < this.fillTaskList.size();i++){

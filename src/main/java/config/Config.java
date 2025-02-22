@@ -92,7 +92,7 @@ public class Config {
         defaultMaxThread = config.getValue("DEFAULT_MAX_THREAD",Integer.class,2);
         config.setComments("DEFAULT_MAX_THREAD",new ArrayList<>(Collections.singletonList("デフォルト使用可能スレッド(タスク)数")));
         //DEFAULT_USE_THREAD
-        defaultMaxThread = config.getValue("DEFAULT_USE_THREAD",Integer.class,2);
+        defaultUseThread = config.getValue("DEFAULT_USE_THREAD",Integer.class,2);
         config.setComments("DEFAULT_USE_THREAD",new ArrayList<>(Collections.singletonList("デフォルトスレッド数未指定時使用スレッド(タスク)数")));
         //ALLOW_WORLD_NAME
         allowWorldName = config.getValue("ALLOW_WORLD_NAME",String.class,"world");

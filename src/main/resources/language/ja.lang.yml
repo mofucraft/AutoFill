@@ -8,6 +8,7 @@ reload: |-
   §8-§fWAND指定アイテム: §a%wand%
   §8-§f管理者パーミッション: §a%adminPermission%
   §8-§fデフォルト使用可能スレッド数: §a%defaultMaxThread%
+  §8-§fデフォルトスレッド数未指定時使用スレッド(タスク)数: §a%defaultUseThread%
   §8-§fAutoFill使用可能ワールド名: §a%allowWorldName%
   §8-§fAutoFillブロック設置クールダウン: §a%blockPlaceCooldown%millSeconds
   §8-§f禁止ブロックリスト: %disableBlockList%
