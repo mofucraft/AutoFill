@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.minecraft.autofill.RotationAngle;
 import org.minecraft.autofill.UserData;
 import org.minecraft.autofill.SelectMode;
@@ -104,5 +105,10 @@ public class PluginEventHandler implements Listener {
             }
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onLogout(PlayerQuitEvent e){
+        PlayerStatusList.removePlayerData(e.getPlayer());
     }
 }

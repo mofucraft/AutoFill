@@ -20,4 +20,11 @@ public class PlayerStatusList {
         }
         return playerData.get(p.getUniqueId());
     }
+
+    public static boolean removePlayerData(Player p){
+        if(playerData.containsKey(p.getUniqueId())){
+            playerData.remove(p.getUniqueId());
+        }
+        return true;
+    }
 }
