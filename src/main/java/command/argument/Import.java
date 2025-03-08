@@ -52,6 +52,11 @@ public class Import extends CommandMethod {
                         return;
                     }
                     BookMeta bookMeta = (BookMeta) book.getItemMeta();
+                    if(bookMeta.hasAuthor() && "AutoFill".equals(bookMeta.getAuthor())){
+                        LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(),"notAutoFillAuthor");
+                        userData.setImporting(false);
+                        return;
+                    }
                     List<BaseComponent[]> pages = bookMeta.spigot().getPages();
                     String[] structureIDAndInfoPage = ((TextComponent)pages.get(0)[0].getExtra().get(3)).getText().split(" ");
                     int dataPageStartIndex = Integer.parseInt(structureIDAndInfoPage[0]);

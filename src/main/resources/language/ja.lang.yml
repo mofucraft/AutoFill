@@ -167,4 +167,5 @@ discardStructureDataByChangeMode: |-
   §8[§6AutoFill§8] §cモードが変更されたため、構造物データが破棄されました
 otherPlayerProtectionArea: |-
   §8[§6AutoFill§8] §cアクセスできない領域保護が選択範囲に含まれているため、エクスポートできません
-  
+notAutoFillAuthor: |-
+  §8[§6AutoFill§8] §cAutoFillによって作成された設計データではないため、インポートできません

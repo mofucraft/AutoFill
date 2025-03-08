@@ -147,8 +147,9 @@ public class Export extends CommandMethod {
                     titlePage[1].setBold(true);
                     titlePage[1].setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/autofill import"));
                     titlePage[1].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new ComponentBuilder("クリックして設計データをインポート").color(ChatColor.GOLD).create()));
+                    String futureData = "000";
                     try {
-                        titlePage[2] = new TextComponent("§8>§r\n\n§7ID:" + Util.ByteToString(MessageDigest.getInstance("SHA-1").digest(structureData)).substring(0,8) + " ");
+                        titlePage[2] = new TextComponent("§8>§r\n\n§7ID:" + Util.ByteToString(MessageDigest.getInstance("SHA-1").digest(structureData)).substring(0,4) + " ");
                     } catch (NoSuchAlgorithmException e) {
                         LanguageUtil.sendMessage(p, database.getPlayerStatus(p).getUsingLanguage(), "unknownError");
                         userData.setExporting(false);
@@ -171,7 +172,7 @@ public class Export extends CommandMethod {
                         pages.add(new TextComponent[]{new TextComponent(pageText.toString())});
                     }
                     String structureDataString = Util.ByteToString(Util.compress(structureData));
-                    TextComponent infoPageNum = new TextComponent(pages.size() + " " + Util.IntToBase64NumberString(structureData.length).substring(1));
+                    TextComponent infoPageNum = new TextComponent(pages.size() + " " + Util.IntToBase64NumberString(structureData.length).substring(1) + " " + futureData);
                     infoPageNum.setColor(ChatColor.GRAY);
                     pages.get(0)[3] = infoPageNum;
                     for(int i = 1;;i++){
